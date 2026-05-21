@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>REGA PDF Compressor</title>
+    
+    <!-- TailwindCSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Custom Styles -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    
+    <!-- Font Awesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="min-h-screen">
+    
+    <!-- Background Elements -->
+    <div class="fixed inset-0 overflow-hidden pointer-events-none">
+        <div class="absolute top-20 left-10 w-96 h-96 bg-cyan-900 rounded-full mix-blend-screen filter blur-[100px] opacity-20"></div>
+        <div class="absolute bottom-20 right-10 w-96 h-96 bg-yellow-900 rounded-full mix-blend-screen filter blur-[100px] opacity-20"></div>
+    </div>
+    
+    <!-- Main Container -->
+    <div class="min-h-screen p-8 flex flex-col items-center relative">
+        <!-- Settings Button -->
+        <button id="settingsBtn" class="absolute top-6 left-6 text-cyan-400 hover:text-white transition-colors text-2xl drop-shadow-[0_0_8px_rgba(0,243,255,0.8)]">
+            <i class="fas fa-cog"></i>
+        </button>
+        
+        <!-- Glassmorphism Card -->
+        <div class="glass-card w-full max-w-2xl p-8 md:p-12 relative overflow-hidden">
+            
+            <!-- Header -->
+            <div class="text-center mb-8 relative z-10">
+                <h1 class="font-black mb-2 glitch-cyan uppercase tracking-wider" style="font-size: calc(3rem + 3pt);">
+                    REGA
+                </h1>
+                <p class="text-yellow-400 font-bold uppercase tracking-widest text-sm mb-6 electrify-text" style="text-shadow: 0 0 10px rgba(255,234,0,0.5);">PDF Compressor</p>
+            </div>
+            
+            <!-- Upload Form -->
+            <form id="uploadForm" class="space-y-6 relative z-10">
+                
+                <!-- File Upload Area -->
+                <div class="upload-area" id="uploadArea">
+                    <input type="file" id="fileInput" name="files[]" accept=".pdf" multiple class="hidden">
+                    <div class="text-center">
+                        <i class="fas fa-file-pdf text-5xl mb-4" style="color: #00f3ff; text-shadow: 0 0 15px rgba(0,243,255,0.6);"></i>
+                        <p class="text-lg font-semibold text-gray-200 mb-2">
+                            Drop PDF files here or click to browse
+                        </p>
+                        <p class="text-sm text-gray-500">
+                            Support for multiple files • Max 100MB per file
+                        </p>
+                    </div>
+                </div>
+                
+                <!-- Selected Files Display -->
+                <div id="fileList" class="hidden space-y-2"></div>
+                
+                <!-- Compression Quality Selector -->
+                <div class="space-y-3">
+                    <label class="block text-sm font-semibold text-gray-400 uppercase tracking-widest mb-4">
+                        Compression Level
+                    </label>
+                    <div class="grid grid-cols-3 gap-3">
+                        
+                        <label class="quality-option">
+                            <input type="radio" name="quality" value="screen" class="hidden">
+                            <div class="quality-card">
+                                <i class="fas fa-mobile-alt text-2xl mb-2"></i>
+                                <div class="font-semibold uppercase tracking-wider text-sm">Screen</div>
+                                <div class="text-xs text-gray-500 mt-1">72 DPI</div>
+                            </div>
+                        </label>
+                        
+                        <label class="quality-option">
+                            <input type="radio" name="quality" value="ebook" class="hidden" checked>
+                            <div class="quality-card active">
+                                <i class="fas fa-book text-2xl mb-2"></i>
+                                <div class="font-semibold uppercase tracking-wider text-sm">eBook</div>
+                                <div class="text-xs text-gray-500 mt-1">150 DPI</div>
+                            </div>
+                        </label>
+                        
+                        <label class="quality-option">
+                            <input type="radio" name="quality" value="printer" class="hidden">
+                            <div class="quality-card">
+                                <i class="fas fa-print text-2xl mb-2"></i>
+                                <div class="font-semibold uppercase tracking-wider text-sm">Printer</div>
+                                <div class="text-xs text-gray-500 mt-1">300 DPI</div>
+                            </div>
+                        </label>
+                        
+                    </div>
+                </div>
+                
+                <!-- Wanted Size Button -->
+                <button 
+                    type="button" 
+                    id="wantedSizeBtn"
+                    class="w-full bg-gray-800 border border-cyan-500/30 text-cyan-400 font-bold py-3 rounded-xl mt-4 hover:bg-gray-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                    disabled
+                >
+                    <i class="fas fa-bullseye mr-2"></i>
+                    Wanted Size (Target MB)
+                </button>
+                
+                <!-- Compress Button -->
+                <button 
+                    type="submit" 
+                    id="compressBtn"
+                    class="w-full neon-yellow-btn font-bold py-4 rounded-xl mt-4 disabled:opacity-50 disabled:cursor-not-allowed"
+                    disabled
+                >
+                    <i class="fas fa-bolt mr-2"></i>
+                    Compress PDFs
+                </button>
+                
+            </form>
+            
+            <!-- Progress Indicator -->
+            <div id="progressContainer" class="hidden mt-6 relative z-10">
+                <div class="bg-gray-900/80 backdrop-blur-sm rounded-xl p-6 border border-cyan-500/30">
+                    <div class="flex items-center justify-center space-x-4 mb-4">
+                        <div class="spinner-glitch"></div>
+                        <span class="text-cyan-400 font-bold uppercase tracking-wider glitch-cyan text-sm" style="animation-duration: 2s;">Optimizing Data...</span>
+                    </div>
+                    <div class="w-full bg-gray-800 rounded-full h-1 overflow-hidden">
+                        <div class="progress-bar-neon h-full w-0" id="progressBar"></div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Success Message -->
+            <div id="successMessage" class="hidden mt-6 relative z-10">
+                <div class="bg-yellow-500/10 border border-yellow-500/30 rounded-xl p-6">
+                    <div class="flex items-center space-x-3 mb-2">
+                        <i class="fas fa-check-circle text-yellow-400 text-xl" style="text-shadow: 0 0 10px #ffea00;"></i>
+                        <span class="text-yellow-400 font-bold uppercase tracking-wider">Success</span>
+                    </div>
+                    <p class="text-gray-300 text-sm mb-4">
+                        Compression complete!
+                    </p>
+                    <div id="downloadButtons" class="flex space-x-3">
+                        <!-- Buttons will be injected here by script.js -->
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Error Message -->
+            <div id="errorMessage" class="hidden mt-6 relative z-10">
+                <div class="bg-red-500/10 border border-red-500/30 rounded-xl p-6">
+                    <div class="flex items-center space-x-3 mb-2">
+                        <i class="fas fa-exclamation-triangle text-red-500 text-xl" style="text-shadow: 0 0 10px #ef4444;"></i>
+                        <span class="text-red-400 font-bold uppercase tracking-wider">Error</span>
+                    </div>
+                    <p class="text-gray-300 text-sm" id="errorText"></p>
+                </div>
+            </div>
+            
+        </div>
+        
+    </div>
+    
+    <!-- JavaScript -->
+    <!-- Settings Modal -->
+    <div id="settingsModal" class="hidden fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center">
+        <div class="glass-panel p-8 w-full max-w-md relative">
+            <button id="closeSettingsBtn" class="absolute top-4 right-4 text-gray-400 hover:text-white text-xl">
+                <i class="fas fa-times"></i>
+            </button>
+            <h2 class="text-2xl font-bold text-white mb-6 tracking-wide border-b border-gray-700 pb-2">
+                <i class="fas fa-sliders-h mr-2 text-cyan-400"></i> Settings
+            </h2>
+            
+            <div class="space-y-6">
+                <!-- Change Download Folder -->
+                <div>
+                    <h3 class="text-gray-300 font-semibold mb-2 text-sm uppercase tracking-wider">Download Location</h3>
+                    <button id="changeFolderBtn" class="w-full px-4 py-3 bg-gray-800 border border-cyan-500/50 text-cyan-400 rounded hover:bg-gray-700 transition-colors flex items-center justify-between group">
+                        <span>Change Folder</span>
+                        <i class="fas fa-folder-open group-hover:scale-110 transition-transform"></i>
+                    </button>
+                    <p id="currentFolderText" class="text-xs text-gray-500 mt-2 truncate">Default: Downloads</p>
+                </div>
+                
+                <!-- Clear Cache -->
+                <div>
+                    <h3 class="text-gray-300 font-semibold mb-2 text-sm uppercase tracking-wider">Maintenance</h3>
+                    <button id="clearCacheBtn" class="w-full px-4 py-3 bg-gray-800 border border-red-500/50 text-red-400 rounded hover:bg-gray-700 transition-colors flex items-center justify-between group">
+                        <span>Clear Cache & Verify</span>
+                        <i class="fas fa-trash-alt group-hover:scale-110 transition-transform"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Wanted Size Modal -->
+    <div id="wantedSizeModal" class="hidden fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center">
+        <div class="glass-panel p-8 w-full max-w-sm relative text-center">
+            <button id="closeWantedSizeBtn" class="absolute top-4 right-4 text-gray-400 hover:text-white text-xl">
+                <i class="fas fa-times"></i>
+            </button>
+            <h2 class="text-xl font-bold text-white mb-4 tracking-wide border-b border-gray-700 pb-2">
+                <i class="fas fa-compress mr-2 text-cyan-400"></i> Target Size
+            </h2>
+            <p class="text-sm text-gray-400 mb-4">Enter desired file target size.</p>
+            <div class="flex items-center space-x-2 mb-6">
+                <input type="number" id="wantedSizeInput" step="0.1" min="0.1" class="flex-1 bg-gray-900 border border-cyan-500/50 rounded p-3 text-white text-center" placeholder="e.g. 5.0">
+                <select id="wantedSizeUnit" class="bg-gray-800 border border-cyan-500/50 rounded p-3 text-cyan-400 font-bold focus:outline-none cursor-pointer">
+                    <option value="MB">MB</option>
+                    <option value="KB">KB</option>
+                </select>
+            </div>
+            <button id="applyWantedSizeBtn" class="w-full neon-yellow-btn font-bold py-3 rounded-xl">
+                Apply Target
+            </button>
+        </div>
+    </div>
+    
+    <!-- Quality Warning Modal -->
+    <div id="qualityWarningModal" class="hidden fixed inset-0 bg-black/80 backdrop-blur-sm z-[60] flex items-center justify-center">
+        <div class="glass-panel border-red-500/50 p-8 w-full max-w-md relative text-center" style="box-shadow: 0 0 30px rgba(239,68,68,0.2);">
+            <div class="text-red-500 text-5xl mb-4" style="text-shadow: 0 0 15px rgba(239,68,68,0.6);">
+                <i class="fas fa-exclamation-triangle"></i>
+            </div>
+            <h2 class="text-2xl font-bold text-red-400 mb-2 uppercase tracking-wide">Quality Warning</h2>
+            <p class="text-sm text-gray-300 mb-6">
+                Your target size is drastically smaller than the original files (under 30%). Forcing this size will switch to the most aggressive compression mode (Screen/Low Quality) and may result in heavy visual degradation.
+            </p>
+            <div class="flex space-x-4">
+                <button id="cancelWarningBtn" class="flex-1 bg-gray-800 text-gray-300 py-3 rounded-xl hover:bg-gray-700 font-bold transition-colors">
+                    Cancel
+                </button>
+                <button id="proceedWarningBtn" class="flex-1 bg-red-600 text-white py-3 rounded-xl hover:bg-red-500 font-bold transition-colors" style="box-shadow: 0 0 15px rgba(239,68,68,0.4);">
+                    Proceed Anyway
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+    
+</body>
+</html>

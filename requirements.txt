@@ -1,0 +1,6 @@
+flask==3.0.0
+pikepdf==8.10.1
+pymupdf==1.23.8
+pyinstaller==6.3.0
+werkzeug==3.0.1
+pywebview==5.0.5
