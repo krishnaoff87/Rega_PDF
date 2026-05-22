@@ -20,6 +20,9 @@ def get_ghostscript_path():
     Detects if running from PyInstaller bundle and uses bundled Ghostscript.
     Falls back to system Ghostscript if not bundled.
     """
+    if os.name != 'nt':
+        return 'gs'
+        
     # Check if running from PyInstaller bundle
     if getattr(sys, 'frozen', False):
         # Running from PyInstaller bundle
