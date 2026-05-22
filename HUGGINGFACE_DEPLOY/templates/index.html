@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>REGA PDF Compressor</title>
+    
+    <!-- TailwindCSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Custom Styles -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    
+    <!-- Font Awesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+    .flicker-off {
+        animation: light-bulb-flicker 0.8s forwards;
+    }
+    @keyframes light-bulb-flicker {
+        0% { opacity: 1; filter: brightness(1); }
+        10% { opacity: 0.3; filter: brightness(0.3); }
+        20% { opacity: 0.8; filter: brightness(0.8); }
+        30% { opacity: 0.1; filter: brightness(0.1); }
+        40% { opacity: 0.6; filter: brightness(0.6); }
+        100% { opacity: 0; filter: brightness(0); visibility: hidden; }
+    }
+    .exit-btn {
+        background: transparent;
+        color: #ef4444;
+        border: 2px solid #ef4444;
+        box-shadow: 0 0 15px rgba(239, 68, 68, 0.2);
+    }
+    .exit-btn:hover {
+        background: #ef4444;
+        color: #ffffff;
+        box-shadow: 0 0 25px rgba(239, 68, 68, 0.8);
+    }
+    
+    
+    @keyframes fade-in-screen {
+        0% { opacity: 0; filter: brightness(0); }
+        100% { opacity: 1; filter: brightness(1); }
+    }
+    .startup-mode { 
+        background: #000000 !important; 
+        animation: fade-in-screen 1.5s ease-out forwards;
+    }
+
+    .startup-mode .text-center.mb-8 { opacity: 0; }
+    .startup-mode .tool-tile { opacity: 0; }
+    .startup-mode .glass-card { background: transparent; border: none; box-shadow: none; }
+    .startup-mode .exit-btn { 
+        color: #450a0a !important; 
+        border-color: #450a0a !important; 
+        background: transparent !important; 
+        box-shadow: none !important; 
+        pointer-events: none !important; 
+    }
+
+    .flicker-on {
+        animation: light-bulb-flicker-on 0.8s forwards;
+    }
+    @keyframes light-bulb-flicker-on {
+        0% { opacity: 0; filter: brightness(0); }
+        40% { opacity: 0.6; filter: brightness(0.6); }
+        50% { opacity: 0.1; filter: brightness(0.1); }
+        70% { opacity: 0.8; filter: brightness(0.8); }
+        90% { opacity: 0.3; filter: brightness(0.3); }
+        100% { opacity: 1; filter: brightness(1); }
+    }
+    </style>
+
+</head>
+
+<body class="min-h-screen">
+    
+    <!-- Background Elements -->
+    <div class="fixed inset-0 overflow-hidden pointer-events-none">
+        <div class="absolute top-20 left-10 w-96 h-96 bg-cyan-900 rounded-full mix-blend-screen filter blur-[100px] opacity-20"></div>
+        <div class="absolute bottom-20 right-10 w-96 h-96 bg-yellow-900 rounded-full mix-blend-screen filter blur-[100px] opacity-20"></div>
+    </div>
+    
+    <!-- Main Container -->
+    <div class="min-h-screen p-8 flex flex-col items-center relative">
+        <!-- Settings Button -->
+        <button id="settingsBtn" class="absolute top-6 left-6 text-cyan-400 hover:text-white transition-colors text-2xl drop-shadow-[0_0_8px_rgba(0,243,255,0.8)]">
+            <i class="fas fa-cog"></i>
+        </button>
+        
+        <!-- Glassmorphism Card -->
+        <div class="glass-card w-full max-w-2xl p-8 md:p-12 relative overflow-hidden">
+            
+            <!-- Header -->
+            <div class="text-center mb-8 relative z-10">
+                <h1 class="font-black mb-2 glitch-cyan uppercase tracking-widest" title="Tera Bhai Kis Se kam hai!!" style="letter-spacing: 0.2em; font-size: 5rem;">
+                    REGA
+                </h1>
+                <p class="text-yellow-400 font-bold uppercase tracking-widest text-sm mb-6 electrify-text" style="text-shadow: 0 0 10px rgba(255,234,0,0.5);">PDF GENERAL STORE</p>
+            </div>
+            
+            
+            <!-- Home Dashboard View -->
+            <div id="homeView" class="w-full relative z-10">
+                <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
+                    <button class="tool-tile neon-yellow-btn p-6 rounded-xl flex flex-col items-center justify-center transition-transform hover:scale-105" data-tool="compress">
+                        <i class="fas fa-compress-alt text-4xl mb-3"></i>
+                        <span class="font-bold uppercase tracking-wider text-sm">Compress</span>
+                    </button>
+                    <button class="tool-tile bg-gray-800 hover:bg-cyan-600 border border-cyan-500 text-cyan-400 hover:text-white p-6 rounded-xl flex flex-col items-center justify-center transition-all hover:scale-105 shadow-[0_0_15px_rgba(0,243,255,0.2)] hover:shadow-[0_0_25px_rgba(0,243,255,0.8)]" data-tool="pdf-to-img">
+                        <i class="fas fa-file-image text-4xl mb-3"></i>
+                        <span class="font-bold uppercase tracking-wider text-sm text-center">PDF to Image</span>
+                    </button>
+                    <button class="tool-tile bg-gray-800 hover:bg-cyan-600 border border-cyan-500 text-cyan-400 hover:text-white p-6 rounded-xl flex flex-col items-center justify-center transition-all hover:scale-105 shadow-[0_0_15px_rgba(0,243,255,0.2)] hover:shadow-[0_0_25px_rgba(0,243,255,0.8)]" data-tool="img-to-pdf">
+                        <i class="fas fa-images text-4xl mb-3"></i>
+                        <span class="font-bold uppercase tracking-wider text-sm text-center">Image to PDF</span>
+                    </button>
+                    <button class="tool-tile bg-gray-800 hover:bg-purple-600 border border-purple-500 text-purple-400 hover:text-white p-6 rounded-xl flex flex-col items-center justify-center transition-all hover:scale-105 shadow-[0_0_15px_rgba(168,85,247,0.2)] hover:shadow-[0_0_25px_rgba(168,85,247,0.8)]" data-tool="merge">
+                        <i class="fas fa-object-group text-4xl mb-3"></i>
+                        <span class="font-bold uppercase tracking-wider text-sm">Merge</span>
+                    </button>
+                    <button class="tool-tile bg-gray-800 hover:bg-blue-600 border border-blue-500 text-blue-400 hover:text-white p-6 rounded-xl flex flex-col items-center justify-center transition-all hover:scale-105 shadow-[0_0_15px_rgba(59,130,246,0.2)] hover:shadow-[0_0_25px_rgba(59,130,246,0.8)]" data-tool="pdf-to-word">
+                        <i class="fas fa-file-word text-4xl mb-3"></i>
+                        <span class="font-bold uppercase tracking-wider text-sm text-center">PDF to Word</span>
+                    </button>
+                    <button class="tool-tile bg-gray-800 hover:bg-green-600 border border-green-500 text-green-400 hover:text-white p-6 rounded-xl flex flex-col items-center justify-center transition-all hover:scale-105 shadow-[0_0_15px_rgba(34,197,94,0.2)] hover:shadow-[0_0_25px_rgba(34,197,94,0.8)]" data-tool="pdf-to-excel">
+                        <i class="fas fa-file-excel text-4xl mb-3"></i>
+                        <span class="font-bold uppercase tracking-wider text-sm text-center">PDF to Excel</span>
+                    </button>
+                </div>
+                <!-- Exit Button -->
+                <div class="mt-12 text-center relative z-10 w-full" id="exitBtnContainer">
+                    <button class="exit-btn px-10 py-4 rounded-xl font-bold tracking-widest uppercase transition-all duration-300" id="exitBtn" onclick="powerDownApp()">
+                        <i class="fas fa-power-off mr-2"></i> SYSTEM EXIT
+                    </button>
+                </div>
+            </div>
+
+            <!-- Tool View -->
+            <div id="toolView" class="hidden relative z-10">
+                <div class="flex justify-between items-center mb-6 w-full">
+                    <button id="backToHomeBtn" class="text-gray-400 hover:text-white transition-colors flex items-center text-sm font-bold uppercase tracking-wider">
+                        <i class="fas fa-arrow-left mr-2"></i> Back to Tools
+                    </button>
+                    <button id="resetToolBtn" type="button" class="text-red-400 hover:text-white hover:bg-red-600 transition-colors flex items-center text-sm font-bold uppercase tracking-wider px-3 py-1 rounded border border-red-500 hover:shadow-[0_0_15px_rgba(239,68,68,0.8)]">
+                        <i class="fas fa-redo-alt mr-2"></i> Reset
+                    </button>
+                </div>
+                
+                <h2 id="toolTitle" class="text-2xl font-bold text-white mb-6 tracking-wide border-b border-gray-700 pb-2 text-center">
+                    <i class="fas fa-compress mr-2 text-cyan-400"></i> Compress PDF
+                </h2>
+
+            <!-- Upload Form -->
+            <form id="uploadForm" class="space-y-6 relative z-10">
+                
+                <!-- File Upload Area -->
+                <div class="upload-area" id="uploadArea">
+                    <input type="file" id="fileInput" name="files[]" accept=".pdf" multiple class="hidden">
+                    <div class="text-center">
+                        <i class="fas fa-file-pdf text-5xl mb-4" style="color: #00f3ff; text-shadow: 0 0 15px rgba(0,243,255,0.6);"></i>
+                        <p class="text-lg font-semibold text-gray-200 mb-2">
+                            Drop PDF files here or click to browse
+                        </p>
+                        <p class="text-sm text-gray-500">
+                            Support for multiple files • Max 100MB per file
+                        </p>
+                    </div>
+                </div>
+                
+                <!-- Selected Files Display -->
+                <div id="fileList" class="hidden space-y-2"></div>
+                
+                <!-- Compression Quality Selector -->
+                <div id="qualityOptionsContainer" class="space-y-3">
+                    <label class="block text-sm font-semibold text-gray-400 uppercase tracking-widest mb-4">
+                        Compression Level
+                    </label>
+                    <div class="grid grid-cols-3 gap-3">
+                        
+                        <label class="quality-option">
+                            <input type="radio" name="quality" value="screen" class="hidden">
+                            <div class="quality-card">
+                                <i class="fas fa-mobile-alt text-2xl mb-2"></i>
+                                <div class="font-semibold uppercase tracking-wider text-sm">Screen</div>
+                                <div class="text-xs text-gray-500 mt-1">72 DPI</div>
+                            </div>
+                        </label>
+                        
+                        <label class="quality-option">
+                            <input type="radio" name="quality" value="ebook" class="hidden" checked>
+                            <div class="quality-card active">
+                                <i class="fas fa-book text-2xl mb-2"></i>
+                                <div class="font-semibold uppercase tracking-wider text-sm">eBook</div>
+                                <div class="text-xs text-gray-500 mt-1">150 DPI</div>
+                            </div>
+                        </label>
+                        
+                        <label class="quality-option">
+                            <input type="radio" name="quality" value="printer" class="hidden">
+                            <div class="quality-card">
+                                <i class="fas fa-print text-2xl mb-2"></i>
+                                <div class="font-semibold uppercase tracking-wider text-sm">Printer</div>
+                                <div class="text-xs text-gray-500 mt-1">300 DPI</div>
+                            </div>
+                        </label>
+                        
+                    </div>
+                </div>
+                
+                
+                <!-- Extra Fields -->
+                <div id="extraFieldsContainer" class="hidden space-y-4 mb-4">
+                    <!-- PDF to Image Format -->
+                    <div id="formatSelectorContainer" class="hidden">
+                        <label class="block text-sm font-semibold text-gray-400 uppercase tracking-widest mb-2">Image Format</label>
+                        <select id="imgFormatSelect" name="format" class="w-full bg-gray-900 border border-cyan-500/50 rounded p-3 text-cyan-400 focus:outline-none focus:border-cyan-400">
+                            <option value="png">PNG (High Quality)</option>
+                            <option value="jpg">JPG (Smaller Size)</option>
+                        </select>
+                    </div>
+                    
+                    <!-- Image to PDF Password -->
+                    <div id="passwordContainer" class="hidden">
+                        <label class="block text-sm font-semibold text-gray-400 uppercase tracking-widest mb-2">Add Password (Optional)</label>
+                        <input type="password" id="pdfPasswordInput" name="password" placeholder="Leave blank for no password" class="w-full bg-gray-900 border border-purple-500/50 rounded p-3 text-purple-400 focus:outline-none focus:border-purple-400">
+                    </div>
+                </div>
+    
+                <!-- Wanted Size Button -->
+                <button 
+                    type="button" 
+                    id="wantedSizeBtn"
+                    class="w-full bg-gray-800 border border-cyan-500/30 text-cyan-400 font-bold py-3 rounded-xl mt-4 hover:bg-gray-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                    disabled
+                >
+                    <i class="fas fa-bullseye mr-2"></i>
+                    Wanted Size (Target MB)
+                </button>
+                
+                <!-- Compress Button -->
+                <button 
+                    type="submit" 
+                    id="compressBtn"
+                    class="w-full neon-yellow-btn font-bold py-4 rounded-xl mt-4 disabled:opacity-50 disabled:cursor-not-allowed"
+                    disabled
+                >
+                    <i class="fas fa-bolt mr-2"></i>
+                    Compress PDFs
+                </button>
+                
+            </form>
+            
+            <!-- Progress Indicator -->
+            <div id="progressContainer" class="hidden mt-6 relative z-10">
+                <div class="bg-gray-900/80 backdrop-blur-sm rounded-xl p-6 border border-cyan-500/30">
+                    <div class="flex items-center justify-center space-x-4 mb-4">
+                        <div class="spinner-glitch"></div>
+                        <span class="text-cyan-400 font-bold uppercase tracking-wider glitch-cyan text-sm" style="animation-duration: 2s;">Optimizing Data...</span>
+                    </div>
+                    <div class="w-full bg-gray-800 rounded-full h-3 overflow-hidden shadow-[0_0_10px_rgba(0,255,255,0.2)]">
+                        <div class="bg-gradient-to-r from-blue-500 to-green-500 shadow-[0_0_15px_rgba(34,197,94,0.8)] h-full w-0 transition-all duration-300" id="progressBar"></div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Success Message -->
+            <div id="successMessage" class="hidden mt-6 relative z-10">
+                <div class="bg-yellow-500/10 border border-yellow-500/30 rounded-xl p-6">
+                    <div class="flex items-center space-x-3 mb-2">
+                        <i class="fas fa-check-circle text-yellow-400 text-xl" style="text-shadow: 0 0 10px #ffea00;"></i>
+                        <span class="text-yellow-400 font-bold uppercase tracking-widest" style="letter-spacing: 0.2em;" title="Tera Bhai Kis Se kam hai!!">Success</span>
+                    </div>
+                    <p class="text-gray-300 text-sm mb-4">
+                        Compression complete!
+                    </p>
+                    <div id="downloadButtons" class="flex space-x-3">
+                        <!-- Buttons will be injected here by script.js -->
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Error Message -->
+            <div id="errorMessage" class="hidden mt-6 relative z-10">
+                <div class="bg-red-500/10 border border-red-500/30 rounded-xl p-6">
+                    <div class="flex items-center space-x-3 mb-2">
+                        <i class="fas fa-exclamation-triangle text-red-500 text-xl" style="text-shadow: 0 0 10px #ef4444;"></i>
+                        <span class="text-red-400 font-bold uppercase tracking-widest" style="letter-spacing: 0.2em;" title="Tera Bhai Kis Se kam hai!!">Error</span>
+                    </div>
+                    <p class="text-gray-300 text-sm" id="errorText"></p>
+                </div>
+            </div>
+            
+            </div> <!-- End Tool View -->
+            
+        </div>
+        
+    </div>
+    
+    <!-- JavaScript -->
+    <!-- Settings Modal -->
+    <div id="settingsModal" class="hidden fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center">
+        <div class="glass-panel p-8 w-full max-w-md relative">
+            <button id="closeSettingsBtn" class="absolute top-4 right-4 text-gray-400 hover:text-white text-xl">
+                <i class="fas fa-times"></i>
+            </button>
+            <h2 class="text-2xl font-bold text-white mb-6 tracking-wide border-b border-gray-700 pb-2">
+                <i class="fas fa-sliders-h mr-2 text-cyan-400"></i> Settings
+            </h2>
+            
+            <div class="space-y-6">
+                <!-- Change Download Folder -->
+                <div>
+                    <h3 class="text-gray-300 font-semibold mb-2 text-sm uppercase tracking-widest" style="letter-spacing: 0.2em;" title="Tera Bhai Kis Se kam hai!!">Download Location</h3>
+                    <button id="changeFolderBtn" class="w-full px-4 py-3 bg-gray-800 border border-cyan-500/50 text-cyan-400 rounded hover:bg-gray-700 transition-colors flex items-center justify-between group">
+                        <span>Change Folder</span>
+                        <i class="fas fa-folder-open group-hover:scale-110 transition-transform"></i>
+                    </button>
+                    <p id="currentFolderText" class="text-xs text-gray-500 mt-2 truncate">Default: Downloads</p>
+                </div>
+                
+                <!-- Clear Cache -->
+                <div>
+                    <h3 class="text-gray-300 font-semibold mb-2 text-sm uppercase tracking-widest" style="letter-spacing: 0.2em;" title="Tera Bhai Kis Se kam hai!!">Maintenance</h3>
+                    <button id="clearCacheBtn" class="w-full px-4 py-3 bg-gray-800 border border-red-500/50 text-red-400 rounded hover:bg-gray-700 transition-colors flex items-center justify-between group">
+                        <span>Clear Cache & Verify</span>
+                        <i class="fas fa-trash-alt group-hover:scale-110 transition-transform"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Wanted Size Modal -->
+    <div id="wantedSizeModal" class="hidden fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center">
+        <div class="glass-panel p-8 w-full max-w-sm relative text-center">
+            <button id="closeWantedSizeBtn" class="absolute top-4 right-4 text-gray-400 hover:text-white text-xl">
+                <i class="fas fa-times"></i>
+            </button>
+            <h2 class="text-xl font-bold text-white mb-4 tracking-wide border-b border-gray-700 pb-2">
+                <i class="fas fa-compress mr-2 text-cyan-400"></i> Target Size
+            </h2>
+            <p class="text-sm text-gray-400 mb-4">Enter desired file target size.</p>
+            <div class="flex items-center space-x-2 mb-6">
+                <input type="number" id="wantedSizeInput" step="0.1" min="0.1" class="flex-1 bg-gray-900 border border-cyan-500/50 rounded p-3 text-white text-center" placeholder="e.g. 5.0">
+                <select id="wantedSizeUnit" class="bg-gray-800 border border-cyan-500/50 rounded p-3 text-cyan-400 font-bold focus:outline-none cursor-pointer">
+                    <option value="MB">MB</option>
+                    <option value="KB">KB</option>
+                </select>
+            </div>
+            <button id="applyWantedSizeBtn" class="w-full neon-yellow-btn font-bold py-3 rounded-xl">
+                Apply Target
+            </button>
+        </div>
+    </div>
+    
+    <!-- Quality Warning Modal -->
+    <div id="qualityWarningModal" class="hidden fixed inset-0 bg-black/80 backdrop-blur-sm z-[60] flex items-center justify-center">
+        <div class="glass-panel border-red-500/50 p-8 w-full max-w-md relative text-center" style="box-shadow: 0 0 30px rgba(239,68,68,0.2);">
+            <div class="text-red-500 text-5xl mb-4" style="text-shadow: 0 0 15px rgba(239,68,68,0.6);">
+                <i class="fas fa-exclamation-triangle"></i>
+            </div>
+            <h2 class="text-2xl font-bold text-red-400 mb-2 uppercase tracking-wide">Quality Warning</h2>
+            <p class="text-sm text-gray-300 mb-6">
+                Your target size is drastically smaller than the original files (under 30%). Forcing this size will switch to the most aggressive compression mode (Screen/Low Quality) and may result in heavy visual degradation.
+            </p>
+            <div class="flex space-x-4">
+                <button id="cancelWarningBtn" class="flex-1 bg-gray-800 text-gray-300 py-3 rounded-xl hover:bg-gray-700 font-bold transition-colors">
+                    Cancel
+                </button>
+                <button id="proceedWarningBtn" class="flex-1 bg-red-600 text-white py-3 rounded-xl hover:bg-red-500 font-bold transition-colors" style="box-shadow: 0 0 15px rgba(239,68,68,0.4);">
+                    Proceed Anyway
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+    
+</body>
+</html>
