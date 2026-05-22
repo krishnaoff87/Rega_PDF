@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>REGA PDF Compressor</title>
     
     <!-- TailwindCSS CDN -->
@@ -70,7 +70,15 @@
         90% { opacity: 0.3; filter: brightness(0.3); }
         100% { opacity: 1; filter: brightness(1); }
     }
-    </style>
+    
+    body {
+        -webkit-user-select: none;
+        -moz-user-select: none;
+        -ms-user-select: none;
+        user-select: none;
+        -webkit-touch-callout: none;
+    }
+</style>
 
 </head>
 

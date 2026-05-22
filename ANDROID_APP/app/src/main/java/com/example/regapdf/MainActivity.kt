@@ -4,6 +4,8 @@ import android.annotation.SuppressLint
 import android.app.Activity
 import android.app.DownloadManager
 import android.content.Context
+import android.content.BroadcastReceiver
+import android.content.IntentFilter
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
@@ -21,6 +23,38 @@ import androidx.activity.ComponentActivity
 import androidx.activity.result.contract.ActivityResultContracts
 
 class MainActivity : ComponentActivity() {
+    private val onDownloadComplete = object : BroadcastReceiver() {
+        override fun onReceive(context: Context, intent: Intent) {
+            val id = intent.getLongExtra(DownloadManager.EXTRA_DOWNLOAD_ID, -1)
+            val dm = getSystemService(Context.DOWNLOAD_SERVICE) as DownloadManager
+            val query = DownloadManager.Query().setFilterById(id)
+            val cursor = dm.query(query)
+            if (cursor.moveToFirst()) {
+                val statusIndex = cursor.getColumnIndex(DownloadManager.COLUMN_STATUS)
+                val uriIndex = cursor.getColumnIndex(DownloadManager.COLUMN_LOCAL_URI)
+                val mimeIndex = cursor.getColumnIndex(DownloadManager.COLUMN_MEDIA_TYPE)
+                
+                if (statusIndex != -1 && cursor.getInt(statusIndex) == DownloadManager.STATUS_SUCCESSFUL) {
+                    val uriString = cursor.getString(uriIndex)
+                    val mimeType = cursor.getString(mimeIndex)
+                    if (uriString != null) {
+                        val fileUri = Uri.parse(uriString)
+                        val openIntent = Intent(Intent.ACTION_VIEW)
+                        openIntent.setDataAndType(fileUri, mimeType)
+                        openIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                        openIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                        try {
+                            context.startActivity(openIntent)
+                        } catch (e: Exception) {
+                            Toast.makeText(context, "Downloaded! Check your Downloads folder.", Toast.LENGTH_LONG).show()
+                        }
+                    }
+                }
+            }
+            cursor.close()
+        }
+    }
+
     inner class WebAppInterface {
         @JavascriptInterface
         fun closeApp() {
@@ -57,6 +91,14 @@ class MainActivity : ComponentActivity() {
         
         webView = WebView(this)
         setContentView(webView)
+
+        webView.setBackgroundColor(android.graphics.Color.BLACK)
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.TIRAMISU) {
+            registerReceiver(onDownloadComplete, IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE), Context.RECEIVER_EXPORTED)
+        } else {
+            registerReceiver(onDownloadComplete, IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE))
+        }
+
 
         val webSettings: WebSettings = webView.settings
         webSettings.javaScriptEnabled = true
