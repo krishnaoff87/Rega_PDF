@@ -257,7 +257,117 @@ def health():
     return jsonify({'status': 'ok', 'message': 'PDF Compressor is running'})
 
 
+
+# --- CONVERSION ROUTES ---
+
+from compressor.converters import pdf_to_images, images_to_pdf, merge_pdfs, pdf_to_word, pdf_to_excel
+
+@app.route('/api/convert/pdf-to-img', methods=['POST'])
+def convert_pdf_to_img():
+    try:
+        if 'files[]' not in request.files: return jsonify({'error': 'No file uploaded'}), 400
+        files = request.files.getlist('files[]')
+        img_format = request.form.get('format', 'png').lower()
+        if img_format not in ['png', 'jpg', 'jpeg']: img_format = 'png'
+        
+        output_dir = os.path.join(app.config['OUTPUT_FOLDER'], f"img_{uuid.uuid4().hex}")
+        os.makedirs(output_dir, exist_ok=True)
+        
+        all_image_paths = []
+        for file in files:
+            if not file.filename.lower().endswith('.pdf'): continue
+            orig_name = secure_filename(file.filename)
+            upload_path = os.path.join(app.config['UPLOAD_FOLDER'], f"{uuid.uuid4().hex}_{orig_name}")
+            file.save(upload_path)
+            
+            image_paths = pdf_to_images(upload_path, output_dir, img_format)
+            all_image_paths.extend(image_paths)
+            
+        zip_filename = f"images_converted.zip"
+        zip_path = create_zip_archive(all_image_paths, app.config['OUTPUT_FOLDER'], zip_filename)
+        
+        return jsonify({'success': True, 'zip_url': f"/download/{zip_filename}", 'filename': zip_filename, 'is_multiple': True, 'pdf_urls': []})
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/convert/img-to-pdf', methods=['POST'])
+def convert_img_to_pdf():
+    try:
+        if 'files[]' not in request.files: return jsonify({'error': 'No files uploaded'}), 400
+        files = request.files.getlist('files[]')
+        password = request.form.get('password', '').strip()
+        if not password: password = None
+        
+        image_paths = []
+        for file in files:
+            path = os.path.join(app.config['UPLOAD_FOLDER'], secure_filename(file.filename))
+            file.save(path)
+            image_paths.append(path)
+            
+        output_filename = f"combined_{uuid.uuid4().hex}.pdf"
+        output_path = os.path.join(app.config['OUTPUT_FOLDER'], output_filename)
+        images_to_pdf(image_paths, output_path, password)
+        
+        return jsonify({'success': True, 'pdf_url': f"/download/{output_filename}", 'filename': output_filename, 'is_multiple': False})
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/convert/merge', methods=['POST'])
+def convert_merge():
+    try:
+        if 'files[]' not in request.files: return jsonify({'error': 'No files uploaded'}), 400
+        files = request.files.getlist('files[]')
+        
+        pdf_paths = []
+        for file in files:
+            path = os.path.join(app.config['UPLOAD_FOLDER'], secure_filename(file.filename))
+            file.save(path)
+            pdf_paths.append(path)
+            
+        output_filename = f"merged_{uuid.uuid4().hex}.pdf"
+        output_path = os.path.join(app.config['OUTPUT_FOLDER'], output_filename)
+        merge_pdfs(pdf_paths, output_path)
+        
+        return jsonify({'success': True, 'pdf_url': f"/download/{output_filename}", 'filename': output_filename, 'is_multiple': False})
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/convert/pdf-to-word', methods=['POST'])
+def convert_pdf_to_word():
+    try:
+        if 'files[]' not in request.files: return jsonify({'error': 'No file'}), 400
+        file = request.files.getlist('files[]')[0]
+        orig_name = secure_filename(file.filename)
+        upload_path = os.path.join(app.config['UPLOAD_FOLDER'], orig_name)
+        file.save(upload_path)
+        
+        output_filename = f"{os.path.splitext(orig_name)[0]}.docx"
+        output_path = os.path.join(app.config['OUTPUT_FOLDER'], output_filename)
+        pdf_to_word(upload_path, output_path)
+        
+        return jsonify({'success': True, 'pdf_url': f"/download/{output_filename}", 'filename': output_filename, 'is_multiple': False})
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/convert/pdf-to-excel', methods=['POST'])
+def convert_pdf_to_excel():
+    try:
+        if 'files[]' not in request.files: return jsonify({'error': 'No file'}), 400
+        file = request.files.getlist('files[]')[0]
+        orig_name = secure_filename(file.filename)
+        upload_path = os.path.join(app.config['UPLOAD_FOLDER'], orig_name)
+        file.save(upload_path)
+        
+        output_filename = f"{os.path.splitext(orig_name)[0]}.xlsx"
+        output_path = os.path.join(app.config['OUTPUT_FOLDER'], output_filename)
+        pdf_to_excel(upload_path, output_path)
+        
+        return jsonify({'success': True, 'pdf_url': f"/download/{output_filename}", 'filename': output_filename, 'is_multiple': False})
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
 def cleanup_old_files():
+
     """Clean up old files from upload and output directories"""
     import time
     max_age = 3600  # 1 hour
@@ -275,6 +385,18 @@ def cleanup_old_files():
                         except Exception:
                             pass
 
+
+
+import threading
+
+@app.route('/api/shutdown', methods=['POST'])
+def shutdown():
+    def close_app():
+        if len(webview.windows) > 0:
+            webview.windows[0].destroy()
+        os._exit(0)
+    threading.Timer(0.5, close_app).start()
+    return jsonify({'success': True})
 
 if __name__ == '__main__':
     # Clean up old files on startup

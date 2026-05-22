@@ -13,7 +13,67 @@
     
     <!-- Font Awesome for Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+    .flicker-off {
+        animation: light-bulb-flicker 0.8s forwards;
+    }
+    @keyframes light-bulb-flicker {
+        0% { opacity: 1; filter: brightness(1); }
+        10% { opacity: 0.3; filter: brightness(0.3); }
+        20% { opacity: 0.8; filter: brightness(0.8); }
+        30% { opacity: 0.1; filter: brightness(0.1); }
+        40% { opacity: 0.6; filter: brightness(0.6); }
+        100% { opacity: 0; filter: brightness(0); visibility: hidden; }
+    }
+    .exit-btn {
+        background: transparent;
+        color: #ef4444;
+        border: 2px solid #ef4444;
+        box-shadow: 0 0 15px rgba(239, 68, 68, 0.2);
+    }
+    .exit-btn:hover {
+        background: #ef4444;
+        color: #ffffff;
+        box-shadow: 0 0 25px rgba(239, 68, 68, 0.8);
+    }
+    
+    
+    @keyframes fade-in-screen {
+        0% { opacity: 0; filter: brightness(0); }
+        100% { opacity: 1; filter: brightness(1); }
+    }
+    .startup-mode { 
+        background: #000000 !important; 
+        animation: fade-in-screen 1.5s ease-out forwards;
+    }
+
+    .startup-mode .text-center.mb-8 { opacity: 0; }
+    .startup-mode .tool-tile { opacity: 0; }
+    .startup-mode .glass-card { background: transparent; border: none; box-shadow: none; }
+    .startup-mode .exit-btn { 
+        color: #450a0a !important; 
+        border-color: #450a0a !important; 
+        background: transparent !important; 
+        box-shadow: none !important; 
+        pointer-events: none !important; 
+    }
+
+    .flicker-on {
+        animation: light-bulb-flicker-on 0.8s forwards;
+    }
+    @keyframes light-bulb-flicker-on {
+        0% { opacity: 0; filter: brightness(0); }
+        40% { opacity: 0.6; filter: brightness(0.6); }
+        50% { opacity: 0.1; filter: brightness(0.1); }
+        70% { opacity: 0.8; filter: brightness(0.8); }
+        90% { opacity: 0.3; filter: brightness(0.3); }
+        100% { opacity: 1; filter: brightness(1); }
+    }
+    </style>
+
 </head>
+
 <body class="min-h-screen">
     
     <!-- Background Elements -->
@@ -34,12 +94,64 @@
             
             <!-- Header -->
             <div class="text-center mb-8 relative z-10">
-                <h1 class="font-black mb-2 glitch-cyan uppercase tracking-wider" style="font-size: calc(3rem + 3pt);">
+                <h1 class="font-black mb-2 glitch-cyan uppercase tracking-widest" title="Tera Bhai Kis Se kam hai!!" style="letter-spacing: 0.2em; font-size: 5rem;">
                     REGA
                 </h1>
-                <p class="text-yellow-400 font-bold uppercase tracking-widest text-sm mb-6 electrify-text" style="text-shadow: 0 0 10px rgba(255,234,0,0.5);">PDF Compressor</p>
+                <p class="text-yellow-400 font-bold uppercase tracking-widest text-sm mb-6 electrify-text" style="text-shadow: 0 0 10px rgba(255,234,0,0.5);">PDF GENERAL STORE</p>
             </div>
             
+            
+            <!-- Home Dashboard View -->
+            <div id="homeView" class="w-full relative z-10">
+                <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
+                    <button class="tool-tile neon-yellow-btn p-6 rounded-xl flex flex-col items-center justify-center transition-transform hover:scale-105" data-tool="compress">
+                        <i class="fas fa-compress-alt text-4xl mb-3"></i>
+                        <span class="font-bold uppercase tracking-wider text-sm">Compress</span>
+                    </button>
+                    <button class="tool-tile bg-gray-800 hover:bg-cyan-600 border border-cyan-500 text-cyan-400 hover:text-white p-6 rounded-xl flex flex-col items-center justify-center transition-all hover:scale-105 shadow-[0_0_15px_rgba(0,243,255,0.2)] hover:shadow-[0_0_25px_rgba(0,243,255,0.8)]" data-tool="pdf-to-img">
+                        <i class="fas fa-file-image text-4xl mb-3"></i>
+                        <span class="font-bold uppercase tracking-wider text-sm text-center">PDF to Image</span>
+                    </button>
+                    <button class="tool-tile bg-gray-800 hover:bg-cyan-600 border border-cyan-500 text-cyan-400 hover:text-white p-6 rounded-xl flex flex-col items-center justify-center transition-all hover:scale-105 shadow-[0_0_15px_rgba(0,243,255,0.2)] hover:shadow-[0_0_25px_rgba(0,243,255,0.8)]" data-tool="img-to-pdf">
+                        <i class="fas fa-images text-4xl mb-3"></i>
+                        <span class="font-bold uppercase tracking-wider text-sm text-center">Image to PDF</span>
+                    </button>
+                    <button class="tool-tile bg-gray-800 hover:bg-purple-600 border border-purple-500 text-purple-400 hover:text-white p-6 rounded-xl flex flex-col items-center justify-center transition-all hover:scale-105 shadow-[0_0_15px_rgba(168,85,247,0.2)] hover:shadow-[0_0_25px_rgba(168,85,247,0.8)]" data-tool="merge">
+                        <i class="fas fa-object-group text-4xl mb-3"></i>
+                        <span class="font-bold uppercase tracking-wider text-sm">Merge</span>
+                    </button>
+                    <button class="tool-tile bg-gray-800 hover:bg-blue-600 border border-blue-500 text-blue-400 hover:text-white p-6 rounded-xl flex flex-col items-center justify-center transition-all hover:scale-105 shadow-[0_0_15px_rgba(59,130,246,0.2)] hover:shadow-[0_0_25px_rgba(59,130,246,0.8)]" data-tool="pdf-to-word">
+                        <i class="fas fa-file-word text-4xl mb-3"></i>
+                        <span class="font-bold uppercase tracking-wider text-sm text-center">PDF to Word</span>
+                    </button>
+                    <button class="tool-tile bg-gray-800 hover:bg-green-600 border border-green-500 text-green-400 hover:text-white p-6 rounded-xl flex flex-col items-center justify-center transition-all hover:scale-105 shadow-[0_0_15px_rgba(34,197,94,0.2)] hover:shadow-[0_0_25px_rgba(34,197,94,0.8)]" data-tool="pdf-to-excel">
+                        <i class="fas fa-file-excel text-4xl mb-3"></i>
+                        <span class="font-bold uppercase tracking-wider text-sm text-center">PDF to Excel</span>
+                    </button>
+                </div>
+                <!-- Exit Button -->
+                <div class="mt-12 text-center relative z-10 w-full" id="exitBtnContainer">
+                    <button class="exit-btn px-10 py-4 rounded-xl font-bold tracking-widest uppercase transition-all duration-300" id="exitBtn" onclick="powerDownApp()">
+                        <i class="fas fa-power-off mr-2"></i> SYSTEM EXIT
+                    </button>
+                </div>
+            </div>
+
+            <!-- Tool View -->
+            <div id="toolView" class="hidden relative z-10">
+                <div class="flex justify-between items-center mb-6 w-full">
+                    <button id="backToHomeBtn" class="text-gray-400 hover:text-white transition-colors flex items-center text-sm font-bold uppercase tracking-wider">
+                        <i class="fas fa-arrow-left mr-2"></i> Back to Tools
+                    </button>
+                    <button id="resetToolBtn" type="button" class="text-red-400 hover:text-white hover:bg-red-600 transition-colors flex items-center text-sm font-bold uppercase tracking-wider px-3 py-1 rounded border border-red-500 hover:shadow-[0_0_15px_rgba(239,68,68,0.8)]">
+                        <i class="fas fa-redo-alt mr-2"></i> Reset
+                    </button>
+                </div>
+                
+                <h2 id="toolTitle" class="text-2xl font-bold text-white mb-6 tracking-wide border-b border-gray-700 pb-2 text-center">
+                    <i class="fas fa-compress mr-2 text-cyan-400"></i> Compress PDF
+                </h2>
+
             <!-- Upload Form -->
             <form id="uploadForm" class="space-y-6 relative z-10">
                 
@@ -61,7 +173,7 @@
                 <div id="fileList" class="hidden space-y-2"></div>
                 
                 <!-- Compression Quality Selector -->
-                <div class="space-y-3">
+                <div id="qualityOptionsContainer" class="space-y-3">
                     <label class="block text-sm font-semibold text-gray-400 uppercase tracking-widest mb-4">
                         Compression Level
                     </label>
@@ -97,6 +209,25 @@
                     </div>
                 </div>
                 
+                
+                <!-- Extra Fields -->
+                <div id="extraFieldsContainer" class="hidden space-y-4 mb-4">
+                    <!-- PDF to Image Format -->
+                    <div id="formatSelectorContainer" class="hidden">
+                        <label class="block text-sm font-semibold text-gray-400 uppercase tracking-widest mb-2">Image Format</label>
+                        <select id="imgFormatSelect" name="format" class="w-full bg-gray-900 border border-cyan-500/50 rounded p-3 text-cyan-400 focus:outline-none focus:border-cyan-400">
+                            <option value="png">PNG (High Quality)</option>
+                            <option value="jpg">JPG (Smaller Size)</option>
+                        </select>
+                    </div>
+                    
+                    <!-- Image to PDF Password -->
+                    <div id="passwordContainer" class="hidden">
+                        <label class="block text-sm font-semibold text-gray-400 uppercase tracking-widest mb-2">Add Password (Optional)</label>
+                        <input type="password" id="pdfPasswordInput" name="password" placeholder="Leave blank for no password" class="w-full bg-gray-900 border border-purple-500/50 rounded p-3 text-purple-400 focus:outline-none focus:border-purple-400">
+                    </div>
+                </div>
+    
                 <!-- Wanted Size Button -->
                 <button 
                     type="button" 
@@ -128,8 +259,8 @@
                         <div class="spinner-glitch"></div>
                         <span class="text-cyan-400 font-bold uppercase tracking-wider glitch-cyan text-sm" style="animation-duration: 2s;">Optimizing Data...</span>
                     </div>
-                    <div class="w-full bg-gray-800 rounded-full h-1 overflow-hidden">
-                        <div class="progress-bar-neon h-full w-0" id="progressBar"></div>
+                    <div class="w-full bg-gray-800 rounded-full h-3 overflow-hidden shadow-[0_0_10px_rgba(0,255,255,0.2)]">
+                        <div class="bg-gradient-to-r from-blue-500 to-green-500 shadow-[0_0_15px_rgba(34,197,94,0.8)] h-full w-0 transition-all duration-300" id="progressBar"></div>
                     </div>
                 </div>
             </div>
@@ -139,7 +270,7 @@
                 <div class="bg-yellow-500/10 border border-yellow-500/30 rounded-xl p-6">
                     <div class="flex items-center space-x-3 mb-2">
                         <i class="fas fa-check-circle text-yellow-400 text-xl" style="text-shadow: 0 0 10px #ffea00;"></i>
-                        <span class="text-yellow-400 font-bold uppercase tracking-wider">Success</span>
+                        <span class="text-yellow-400 font-bold uppercase tracking-widest" style="letter-spacing: 0.2em;" title="Tera Bhai Kis Se kam hai!!">Success</span>
                     </div>
                     <p class="text-gray-300 text-sm mb-4">
                         Compression complete!
@@ -155,11 +286,13 @@
                 <div class="bg-red-500/10 border border-red-500/30 rounded-xl p-6">
                     <div class="flex items-center space-x-3 mb-2">
                         <i class="fas fa-exclamation-triangle text-red-500 text-xl" style="text-shadow: 0 0 10px #ef4444;"></i>
-                        <span class="text-red-400 font-bold uppercase tracking-wider">Error</span>
+                        <span class="text-red-400 font-bold uppercase tracking-widest" style="letter-spacing: 0.2em;" title="Tera Bhai Kis Se kam hai!!">Error</span>
                     </div>
                     <p class="text-gray-300 text-sm" id="errorText"></p>
                 </div>
             </div>
+            
+            </div> <!-- End Tool View -->
             
         </div>
         
@@ -179,7 +312,7 @@
             <div class="space-y-6">
                 <!-- Change Download Folder -->
                 <div>
-                    <h3 class="text-gray-300 font-semibold mb-2 text-sm uppercase tracking-wider">Download Location</h3>
+                    <h3 class="text-gray-300 font-semibold mb-2 text-sm uppercase tracking-widest" style="letter-spacing: 0.2em;" title="Tera Bhai Kis Se kam hai!!">Download Location</h3>
                     <button id="changeFolderBtn" class="w-full px-4 py-3 bg-gray-800 border border-cyan-500/50 text-cyan-400 rounded hover:bg-gray-700 transition-colors flex items-center justify-between group">
                         <span>Change Folder</span>
                         <i class="fas fa-folder-open group-hover:scale-110 transition-transform"></i>
@@ -189,7 +322,7 @@
                 
                 <!-- Clear Cache -->
                 <div>
-                    <h3 class="text-gray-300 font-semibold mb-2 text-sm uppercase tracking-wider">Maintenance</h3>
+                    <h3 class="text-gray-300 font-semibold mb-2 text-sm uppercase tracking-widest" style="letter-spacing: 0.2em;" title="Tera Bhai Kis Se kam hai!!">Maintenance</h3>
                     <button id="clearCacheBtn" class="w-full px-4 py-3 bg-gray-800 border border-red-500/50 text-red-400 rounded hover:bg-gray-700 transition-colors flex items-center justify-between group">
                         <span>Clear Cache & Verify</span>
                         <i class="fas fa-trash-alt group-hover:scale-110 transition-transform"></i>
