@@ -16,8 +16,8 @@ COPY . /app
 RUN pip install --no-cache-dir -r requirements.txt
 RUN pip install gunicorn flask-cors
 
-# Create uploads and output directories
-RUN mkdir -p uploads output
+# Create uploads and output directories and grant full permissions for Hugging Face non-root user
+RUN mkdir -p uploads output && chmod 777 uploads output
 
 # Make port 7860 available to the world outside this container
 EXPOSE 7860
