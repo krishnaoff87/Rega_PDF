@@ -192,8 +192,19 @@ function initializeQualitySelector() {
             // Check the radio button
             const radio = option.querySelector('input[type="radio"]');
             radio.checked = true;
+            
+            resetUIForNewCompression();
         });
     });
+}
+
+function resetUIForNewCompression() {
+    if (selectedFiles.length > 0) {
+        successMessage.classList.add('hidden');
+        errorMessage.classList.add('hidden');
+        progressContainer.classList.add('hidden');
+        updateCompressButton();
+    }
 }
 
 // File Selection Handler
@@ -363,33 +374,34 @@ async function compressPDFs() {
         // Render download buttons
         const downloadButtons = document.getElementById('downloadButtons');
         downloadButtons.innerHTML = '';
+        downloadButtons.className = 'flex flex-col space-y-3 w-full mt-2';
         
         if (data.is_multiple) {
             // PDF button (downloads all individually)
             const pdfBtn = document.createElement('button');
-            pdfBtn.className = 'px-4 py-2 bg-gray-800 border border-cyan-500 text-cyan-400 rounded hover:bg-gray-700 transition-colors shadow-[0_0_10px_rgba(0,243,255,0.2)] font-bold';
-            pdfBtn.innerHTML = '<i class="fas fa-file-pdf mr-2"></i>Save PDFs';
+            pdfBtn.className = 'w-full neon-yellow-btn font-bold py-4 rounded-xl';
+            pdfBtn.innerHTML = '<i class="fas fa-file-pdf mr-2"></i>Download PDFs';
             pdfBtn.onclick = async () => {
                 const originalText = pdfBtn.innerHTML;
-                pdfBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Saving...';
+                pdfBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Downloading...';
                 for (const pdf of data.pdf_urls) {
                     const filename = pdf.url.split('/').pop();
                     await fetch(`/save_to_downloads/${filename}`);
                 }
-                pdfBtn.innerHTML = '<i class="fas fa-check mr-2"></i>Saved!';
+                pdfBtn.innerHTML = '<i class="fas fa-check mr-2"></i>Downloaded!';
                 setTimeout(() => pdfBtn.innerHTML = originalText, 2000);
             };
             
             // ZIP button
             const zipBtn = document.createElement('button');
-            zipBtn.className = 'px-4 py-2 bg-yellow-500 text-gray-900 rounded hover:bg-yellow-400 transition-colors shadow-[0_0_10px_rgba(255,234,0,0.5)] font-bold';
-            zipBtn.innerHTML = '<i class="fas fa-file-archive mr-2"></i>Save ZIP';
+            zipBtn.className = 'w-full neon-yellow-btn font-bold py-4 rounded-xl';
+            zipBtn.innerHTML = '<i class="fas fa-file-archive mr-2"></i>Download ZIP';
             zipBtn.onclick = async () => {
                 const originalText = zipBtn.innerHTML;
-                zipBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Saving...';
+                zipBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Downloading...';
                 const filename = data.zip_url.split('/').pop();
                 await fetch(`/save_to_downloads/${filename}`);
-                zipBtn.innerHTML = '<i class="fas fa-check mr-2"></i>Saved!';
+                zipBtn.innerHTML = '<i class="fas fa-check mr-2"></i>Downloaded!';
                 setTimeout(() => zipBtn.innerHTML = originalText, 2000);
             };
             
@@ -398,14 +410,14 @@ async function compressPDFs() {
         } else {
             // Single PDF download
             const pdfBtn = document.createElement('button');
-            pdfBtn.className = 'px-4 py-2 bg-yellow-500 text-gray-900 rounded hover:bg-yellow-400 transition-colors shadow-[0_0_10px_rgba(255,234,0,0.5)] font-bold';
-            pdfBtn.innerHTML = '<i class="fas fa-file-pdf mr-2"></i>Save PDF';
+            pdfBtn.className = 'w-full neon-yellow-btn font-bold py-4 rounded-xl';
+            pdfBtn.innerHTML = '<i class="fas fa-file-pdf mr-2"></i>Download PDF';
             pdfBtn.onclick = async () => {
                 const originalText = pdfBtn.innerHTML;
-                pdfBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Saving...';
+                pdfBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Downloading...';
                 const filename = data.pdf_url.split('/').pop();
                 await fetch(`/save_to_downloads/${filename}`);
-                pdfBtn.innerHTML = '<i class="fas fa-check mr-2"></i>Saved!';
+                pdfBtn.innerHTML = '<i class="fas fa-check mr-2"></i>Downloaded!';
                 setTimeout(() => pdfBtn.innerHTML = originalText, 2000);
             };
             downloadButtons.appendChild(pdfBtn);

@@ -1,0 +1,292 @@
+/* Neon Glass PDF Compressor Styles */
+/* Logo-inspired color palette: Dark brick/slate background with Cyan & Yellow neon */
+
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap');
+
+body {
+    background-color: #050914;
+    background-image: 
+        linear-gradient(rgba(5, 9, 20, 0.9), rgba(5, 9, 20, 0.9)),
+        url('data:image/svg+xml;utf8,<svg width="40" height="40" xmlns="http://www.w3.org/2000/svg"><rect width="40" height="40" fill="none"/><path d="M0 40 L40 0 H20 L0 20 Z" fill="rgba(255,255,255,0.02)"/></svg>');
+    color: #e2e8f0;
+    font-family: 'Inter', sans-serif;
+}
+
+h1, .neon-text {
+    font-family: 'Orbitron', sans-serif;
+}
+
+/* Glitch Blink Animation every 6 seconds */
+@keyframes glitch-blink {
+    0%, 95% {
+        opacity: 1;
+        text-shadow: 0 0 5px #00f3ff, 0 0 15px #00f3ff, 0 0 30px #00f3ff;
+    }
+    96% {
+        opacity: 0.2;
+        text-shadow: none;
+    }
+    97% {
+        opacity: 1;
+        text-shadow: 2px 0 #ffea00, -2px 0 #00f3ff;
+    }
+    98% {
+        opacity: 0.1;
+        text-shadow: none;
+    }
+    99% {
+        opacity: 1;
+        text-shadow: -2px 0 #ffea00, 2px 0 #00f3ff;
+        transform: translate(1px, -1px);
+    }
+    100% {
+        opacity: 1;
+        text-shadow: 0 0 5px #00f3ff, 0 0 15px #00f3ff, 0 0 30px #00f3ff;
+        transform: translate(0, 0);
+    }
+}
+
+.glitch-cyan {
+    color: #fff;
+    text-shadow: 0 0 5px #00f3ff, 0 0 15px #00f3ff, 0 0 30px #00f3ff;
+    animation: glitch-blink 6s infinite;
+}
+
+/* Electrify Effect (1s delayed from glitch-blink) */
+@keyframes electrify {
+    0%, 94%, 100% {
+        color: #facc15;
+        text-shadow: 0 0 10px rgba(255,234,0,0.5);
+    }
+    95% {
+        color: #fff;
+        text-shadow: 0 0 10px #00f3ff, 0 0 20px #00f3ff, 0 0 40px #00f3ff;
+    }
+    96% {
+        color: #facc15;
+        text-shadow: 0 0 10px rgba(255,234,0,0.5);
+    }
+    97% {
+        color: #fff;
+        text-shadow: 0 0 5px #ffea00, 0 0 15px #ffea00;
+        transform: translate(-1px, 1px);
+    }
+    98% {
+        color: #facc15;
+        text-shadow: 0 0 10px rgba(255,234,0,0.5);
+        transform: translate(0, 0);
+    }
+}
+
+.electrify-text {
+    animation: electrify 6s infinite;
+    animation-delay: 1s;
+}
+
+/* Glassmorphism Card (Dark) */
+.glass-card {
+    background: rgba(10, 15, 30, 0.6);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border-radius: 24px;
+    border: 1px solid rgba(0, 243, 255, 0.2);
+    box-shadow: 0 0 40px rgba(0, 243, 255, 0.1), inset 0 0 20px rgba(0, 243, 255, 0.05);
+}
+
+/* Glassmorphism Panel (Settings) */
+.glass-panel {
+    background: rgba(15, 20, 35, 0.95);
+    backdrop-filter: blur(25px);
+    -webkit-backdrop-filter: blur(25px);
+    border-radius: 20px;
+    border: 1px solid rgba(0, 243, 255, 0.4);
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.8), inset 0 0 20px rgba(0, 243, 255, 0.1);
+}
+
+/* Upload Area */
+.upload-area {
+    border: 2px dashed rgba(0, 243, 255, 0.4);
+    border-radius: 16px;
+    padding: 3rem 2rem;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    background: rgba(0, 243, 255, 0.02);
+}
+
+.upload-area:hover {
+    border-color: #00f3ff;
+    background: rgba(0, 243, 255, 0.05);
+    box-shadow: 0 0 15px rgba(0, 243, 255, 0.2);
+    transform: translateY(-2px);
+}
+
+.upload-area.drag-over {
+    border-color: #ffea00;
+    background: rgba(255, 234, 0, 0.05);
+    box-shadow: 0 0 20px rgba(255, 234, 0, 0.3);
+    transform: scale(1.02);
+}
+
+/* Quality Selection Cards */
+.quality-option {
+    cursor: pointer;
+}
+
+.quality-card {
+    background: rgba(15, 23, 42, 0.8);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    padding: 1.5rem 1rem;
+    text-align: center;
+    transition: all 0.3s ease;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 140px;
+    color: #94a3b8;
+}
+
+.quality-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 0 15px rgba(0, 243, 255, 0.2);
+    border-color: rgba(0, 243, 255, 0.4);
+    color: #e2e8f0;
+}
+
+.quality-card.active {
+    background: rgba(0, 243, 255, 0.1);
+    color: #fff;
+    border-color: #00f3ff;
+    box-shadow: 0 0 20px rgba(0, 243, 255, 0.3), inset 0 0 10px rgba(0, 243, 255, 0.2);
+    text-shadow: 0 0 8px rgba(0, 243, 255, 0.8);
+}
+
+.quality-card.active .text-gray-500 {
+    color: rgba(255, 255, 255, 0.7) !important;
+}
+
+/* File List Items */
+.file-item {
+    background: rgba(15, 23, 42, 0.8);
+    border: 1px solid rgba(0, 243, 255, 0.2);
+    border-radius: 12px;
+    padding: 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    transition: all 0.2s ease;
+}
+
+.file-item:hover {
+    background: rgba(0, 243, 255, 0.05);
+    box-shadow: 0 0 10px rgba(0, 243, 255, 0.15);
+}
+
+.file-item .remove-btn {
+    color: #ef4444;
+    cursor: pointer;
+    padding: 0.5rem;
+    border-radius: 8px;
+    transition: all 0.2s ease;
+}
+
+.file-item .remove-btn:hover {
+    color: #ff3333;
+    text-shadow: 0 0 8px #ff3333;
+    transform: scale(1.1);
+}
+
+/* Yellow Compress Button */
+.neon-yellow-btn {
+    background: transparent;
+    color: #ffea00;
+    border: 2px solid #ffea00;
+    box-shadow: 0 0 10px rgba(255, 234, 0, 0.3), inset 0 0 10px rgba(255, 234, 0, 0.2);
+    text-shadow: 0 0 5px rgba(255, 234, 0, 0.8);
+    text-transform: uppercase;
+    letter-spacing: 2px;
+}
+
+.neon-yellow-btn:hover:not(:disabled) {
+    background: rgba(255, 234, 0, 0.1);
+    box-shadow: 0 0 20px rgba(255, 234, 0, 0.6), inset 0 0 15px rgba(255, 234, 0, 0.4);
+    animation: glitch-blink 2s infinite;
+}
+
+.neon-yellow-btn:disabled {
+    border-color: rgba(255, 234, 0, 0.2);
+    color: rgba(255, 234, 0, 0.3);
+    box-shadow: none;
+    text-shadow: none;
+}
+
+/* Loading Spinner with Glitch */
+@keyframes spin-glow {
+    0% { transform: rotate(0deg); box-shadow: 0 0 10px #ffea00, inset 0 0 10px #ffea00; }
+    50% { box-shadow: 0 0 30px #00f3ff, inset 0 0 30px #00f3ff; }
+    100% { transform: rotate(360deg); box-shadow: 0 0 10px #ffea00, inset 0 0 10px #ffea00; }
+}
+
+.spinner-glitch {
+    width: 32px;
+    height: 32px;
+    border: 3px solid transparent;
+    border-top-color: #ffea00;
+    border-bottom-color: #00f3ff;
+    border-radius: 50%;
+    animation: spin-glow 1.5s cubic-bezier(0.68, -0.55, 0.265, 1.55) infinite, glitch-blink 3s infinite;
+}
+
+/* Progress Bar */
+@keyframes neon-pulse {
+    0%, 100% { box-shadow: 0 0 15px #00f3ff; }
+    50% { box-shadow: 0 0 25px #00f3ff; }
+}
+
+@keyframes pulse-glow {
+    0%, 100% { opacity: 1; text-shadow: 0 0 10px #00f3ff; box-shadow: 0 0 10px rgba(0, 243, 255, 0.5); }
+    50% { opacity: 0.7; text-shadow: 0 0 20px #00f3ff; box-shadow: 0 0 25px rgba(0, 243, 255, 0.8); }
+}
+
+.pulse-glow {
+    animation: pulse-glow 2s infinite;
+}
+
+@keyframes progress-anim {
+    0% { width: 0%; }
+    100% { width: 100%; }
+}
+
+.progress-bar-neon {
+    background: #00f3ff;
+    box-shadow: 0 0 15px #00f3ff;
+    animation: neon-pulse 1s infinite;
+    transition: width 0.3s ease-out;
+}
+
+/* Scrollbar Styling */
+::-webkit-scrollbar {
+    width: 8px;
+}
+::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.5);
+}
+::-webkit-scrollbar-thumb {
+    background: rgba(0, 243, 255, 0.3);
+    border-radius: 10px;
+}
+::-webkit-scrollbar-thumb:hover {
+    background: rgba(0, 243, 255, 0.6);
+}
+
+.hidden {
+    display: none !important;
+}
+
+* {
+    transition-property: background-color, border-color, color, fill, stroke, opacity, box-shadow, transform;
+    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+    transition-duration: 200ms;
+}
