@@ -602,7 +602,17 @@ async function compressPDFs() {
                 pdfBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Downloading...';
                 for (const pdf of data.pdf_urls) {
                     const filename = pdf.url.split('/').pop();
-                    await fetch(`/save_to_downloads/${filename}`);
+                    const absoluteUrl = new URL(`/download/${filename}`, window.location.href).href;
+                    if (typeof Android !== "undefined") {
+                        Android.downloadFile(absoluteUrl, filename);
+                    } else {
+                        const a = document.createElement('a');
+                        a.href = absoluteUrl;
+                        a.download = filename;
+                        document.body.appendChild(a);
+                        a.click();
+                        document.body.removeChild(a);
+                    }
                 }
                 pdfBtn.innerHTML = '<i class="fas fa-check mr-2"></i>Downloaded!';
                 setTimeout(() => pdfBtn.innerHTML = originalText, 2000);
@@ -616,7 +626,17 @@ async function compressPDFs() {
                 const originalText = zipBtn.innerHTML;
                 zipBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Downloading...';
                 const filename = data.zip_url.split('/').pop();
-                await fetch(`/save_to_downloads/${filename}`);
+                const absoluteUrl = new URL(`/download/${filename}`, window.location.href).href;
+                    if (typeof Android !== "undefined") {
+                        Android.downloadFile(absoluteUrl, filename);
+                    } else {
+                        const a = document.createElement('a');
+                        a.href = absoluteUrl;
+                        a.download = filename;
+                        document.body.appendChild(a);
+                        a.click();
+                        document.body.removeChild(a);
+                    }
                 zipBtn.innerHTML = '<i class="fas fa-check mr-2"></i>Downloaded!';
                 setTimeout(() => zipBtn.innerHTML = originalText, 2000);
             };
@@ -632,7 +652,17 @@ async function compressPDFs() {
                 const originalText = pdfBtn.innerHTML;
                 pdfBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Downloading...';
                 const filename = data.pdf_url.split('/').pop();
-                await fetch(`/save_to_downloads/${filename}`);
+                const absoluteUrl = new URL(`/download/${filename}`, window.location.href).href;
+                    if (typeof Android !== "undefined") {
+                        Android.downloadFile(absoluteUrl, filename);
+                    } else {
+                        const a = document.createElement('a');
+                        a.href = absoluteUrl;
+                        a.download = filename;
+                        document.body.appendChild(a);
+                        a.click();
+                        document.body.removeChild(a);
+                    }
                 pdfBtn.innerHTML = '<i class="fas fa-check mr-2"></i>Downloaded!';
                 setTimeout(() => pdfBtn.innerHTML = originalText, 2000);
             };
