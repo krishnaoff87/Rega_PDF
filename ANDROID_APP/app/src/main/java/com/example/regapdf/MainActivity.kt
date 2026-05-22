@@ -12,6 +12,7 @@ import android.webkit.CookieManager
 import android.webkit.URLUtil
 import android.webkit.ValueCallback
 import android.webkit.WebChromeClient
+import android.webkit.JavascriptInterface
 import android.webkit.WebSettings
 import android.webkit.WebView
 import android.webkit.WebViewClient
@@ -20,6 +21,14 @@ import androidx.activity.ComponentActivity
 import androidx.activity.result.contract.ActivityResultContracts
 
 class MainActivity : ComponentActivity() {
+    inner class WebAppInterface {
+        @JavascriptInterface
+        fun closeApp() {
+            this@MainActivity.finishAffinity()
+            System.exit(0)
+        }
+    }
+
 
     private lateinit var webView: WebView
     private var fileUploadCallback: ValueCallback<Array<Uri>>? = null
@@ -55,6 +64,7 @@ class MainActivity : ComponentActivity() {
         webSettings.allowFileAccess = true
 
         webView.webViewClient = WebViewClient()
+        webView.addJavascriptInterface(WebAppInterface(), "Android")
         
         webView.webChromeClient = object : WebChromeClient() {
             override fun onShowFileChooser(

@@ -129,7 +129,8 @@ def clear_cache():
         # Simple dependency check: does ghostscript exist?
         from compressor.compress import get_ghostscript_path
         gs = get_ghostscript_path()
-        if not os.path.exists(gs):
+        import shutil
+        if not os.path.exists(gs) and not shutil.which(gs):
             return jsonify({'success': False, 'message': 'Cache cleared, but Ghostscript is MISSING!'})
             
         return jsonify({'success': True, 'message': 'Cache cleared successfully. All dependencies OK.'})
