@@ -19,6 +19,10 @@ import android.webkit.WebSettings
 import android.webkit.WebView
 import android.webkit.WebViewClient
 import android.widget.Toast
+import androidx.core.view.WindowCompat
+import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.WindowInsetsControllerCompat
+import androidx.activity.addCallback
 import androidx.activity.ComponentActivity
 import androidx.activity.result.contract.ActivityResultContracts
 
@@ -55,11 +59,28 @@ class MainActivity : ComponentActivity() {
         }
     }
 
-    inner class WebAppInterface {
+        inner class WebAppInterface {
         @JavascriptInterface
         fun closeApp() {
-            this@MainActivity.finishAffinity()
-            System.exit(0)
+            runOnUiThread {
+                this@MainActivity.finishAffinity()
+                System.exit(0)
+            }
+        }
+
+        @JavascriptInterface
+        fun downloadFile(url: String, filename: String) {
+            val request = DownloadManager.Request(Uri.parse(url))
+            val cookies = CookieManager.getInstance().getCookie(url)
+            request.addRequestHeader("cookie", cookies)
+            request.setTitle(filename)
+            request.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED)
+            request.setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, filename)
+            val dm = getSystemService(Context.DOWNLOAD_SERVICE) as DownloadManager
+            dm.enqueue(request)
+            runOnUiThread {
+                Toast.makeText(applicationContext, "Downloading...", Toast.LENGTH_SHORT).show()
+            }
         }
     }
 
@@ -87,7 +108,20 @@ class MainActivity : ComponentActivity() {
 
     @SuppressLint("SetJavaScriptEnabled")
     override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
+                super.onCreate(savedInstanceState)
+        
+        WindowCompat.setDecorFitsSystemWindows(window, false)
+        val controller = WindowInsetsControllerCompat(window, window.decorView)
+        controller.hide(WindowInsetsCompat.Type.systemBars())
+        controller.systemBarsBehavior = WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
+
+        onBackPressedDispatcher.addCallback(this) {
+            if (webView.canGoBack()) {
+                webView.goBack()
+            } else {
+                finish()
+            }
+        }
         
         webView = WebView(this)
         setContentView(webView)
