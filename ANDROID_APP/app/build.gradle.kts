@@ -8,7 +8,7 @@ android {
     namespace = "com.example.regapdf"
     compileSdk = 36
     defaultConfig {
-        applicationId = "com.example.regapdf"
+        applicationId = "com.rega.pdfgeneralstore"
         minSdk = 24
         targetSdk = 36
         versionCode = 1
