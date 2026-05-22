@@ -9,3 +9,5 @@ pdfplumber
 pandas
 openpyxl
 Pillow
+gunicorn
+flask-cors

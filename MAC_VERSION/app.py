@@ -7,6 +7,7 @@ import os
 import sys
 import tempfile
 import shutil
+from flask_cors import CORS
 from flask import Flask, render_template, request, send_file, jsonify
 from werkzeug.utils import secure_filename
 import uuid
@@ -16,6 +17,7 @@ import webview
 
 # Initialize Flask app
 app = Flask(__name__)
+CORS(app)
 
 # Progress tracking
 PROGRESS = {}
