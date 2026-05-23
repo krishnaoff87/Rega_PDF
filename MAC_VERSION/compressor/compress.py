@@ -9,7 +9,6 @@ import os
 import sys
 import subprocess
 import tempfile
-import platform
 from pathlib import Path
 import pikepdf
 import fitz  # PyMuPDF
@@ -21,24 +20,24 @@ def get_ghostscript_path():
     Detects if running from PyInstaller bundle and uses bundled Ghostscript.
     Falls back to system Ghostscript if not bundled.
     """
-    is_mac = platform.system() == 'Darwin'
-    gs_executable = 'gs' if is_mac else 'gswin64c.exe'
-    
+    if os.name != 'nt':
+        return 'gs'
+        
     # Check if running from PyInstaller bundle
     if getattr(sys, 'frozen', False):
         # Running from PyInstaller bundle
         bundle_dir = sys._MEIPASS
-        gs_path = os.path.join(bundle_dir, 'ghostscript', gs_executable)
+        gs_path = os.path.join(bundle_dir, 'ghostscript', 'gswin64c.exe')
         if os.path.exists(gs_path):
             return gs_path
     
     # Check for bundled Ghostscript in development
-    local_gs = os.path.join(os.path.dirname(__file__), '..', 'ghostscript', gs_executable)
+    local_gs = os.path.join(os.path.dirname(__file__), '..', 'ghostscript', 'gswin64c.exe')
     if os.path.exists(local_gs):
         return os.path.abspath(local_gs)
     
     # Fallback to system Ghostscript
-    return gs_executable
+    return 'gswin64c.exe'
 
 
 def stage1_ghostscript(input_path, output_path, quality='ebook'):
@@ -76,12 +75,9 @@ def stage1_ghostscript(input_path, output_path, quality='ebook'):
     ]
     
     try:
-        # Hide CLI window on Windows, standard run on Mac
-        if os.name == 'nt':
-            creationflags = getattr(subprocess, 'CREATE_NO_WINDOW', 0x08000000)
-            subprocess.run(cmd, check=True, capture_output=True, creationflags=creationflags)
-        else:
-            subprocess.run(cmd, check=True, capture_output=True)
+        # Hide CLI window on Windows
+        creationflags = getattr(subprocess, 'CREATE_NO_WINDOW', 0x08000000) if os.name == 'nt' else 0
+        subprocess.run(cmd, check=True, capture_output=True, creationflags=creationflags)
         return True
     except subprocess.CalledProcessError as e:
         print(f"Ghostscript error: {e.stderr.decode()}")

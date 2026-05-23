@@ -88,12 +88,12 @@ def save_to_downloads(filename):
         dest_path = os.path.join(DOWNLOAD_DIR, secure_filename(filename))
         shutil.copy2(source_path, dest_path)
         
-        # Automatically open the saved file
+        # Automatically open the destination folder
         if os.name == 'nt':
-            os.startfile(dest_path)
+            os.startfile(DOWNLOAD_DIR)
         else:
             import subprocess
-            subprocess.run(['open', dest_path])
+            subprocess.run(['open', DOWNLOAD_DIR])
             
         return jsonify({'success': True, 'path': dest_path})
     except Exception as e:

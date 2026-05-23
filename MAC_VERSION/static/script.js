@@ -223,6 +223,13 @@ document.addEventListener('DOMContentLoaded', () => {
     initializeEventListeners();
     initializeQualitySelector();
     initializeSettings();
+    
+    // Check if running on local desktop app
+    const isDesktop = window.location.hostname === '127.0.0.1' || window.location.hostname === 'localhost';
+    if (isDesktop) {
+        const changeFolderBtn = document.getElementById('changeFolderBtn');
+        if (changeFolderBtn) changeFolderBtn.classList.remove('hidden');
+    }
 });
 
 // Initialize Settings
@@ -445,6 +452,7 @@ function handleFileSelect(files) {
     
     updateFileList();
     updateCompressButton();
+    setTimeout(() => window.scrollTo({top: document.body.scrollHeight, behavior: 'smooth'}), 100);
 }
 // Update File List Display
 function updateFileList() {
@@ -486,6 +494,7 @@ function removeFile(index) {
     selectedFiles.splice(index, 1);
     updateFileList();
     updateCompressButton();
+    setTimeout(() => window.scrollTo({top: document.body.scrollHeight, behavior: 'smooth'}), 100);
 }
 
 // Update Compress Button State
@@ -602,20 +611,25 @@ async function compressPDFs() {
                 pdfBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Downloading...';
                 for (const pdf of data.pdf_urls) {
                     const filename = pdf.url.split('/').pop();
-                    const absoluteUrl = new URL(`/download/${filename}`, window.location.href).href;
-                    if (typeof Android !== "undefined") {
-                        Android.downloadFile(absoluteUrl, filename);
+                    const isDesktop = window.location.hostname === '127.0.0.1' || window.location.hostname === 'localhost';
+                    if (isDesktop) {
+                        await fetch(`/save_to_downloads/${filename}`);
                     } else {
-                        const a = document.createElement('a');
-                        a.href = absoluteUrl;
-                        a.download = filename;
-                        document.body.appendChild(a);
-                        a.click();
-                        document.body.removeChild(a);
+                        const absoluteUrl = new URL(`/download/${filename}`, window.location.href).href;
+                        if (typeof Android !== "undefined") {
+                            Android.downloadFile(absoluteUrl, filename);
+                        } else {
+                            const a = document.createElement('a');
+                            a.href = absoluteUrl;
+                            a.download = filename;
+                            document.body.appendChild(a);
+                            a.click();
+                            document.body.removeChild(a);
+                        }
                     }
                 }
                 pdfBtn.innerHTML = '<i class="fas fa-check mr-2"></i>Downloaded!';
-                setTimeout(() => pdfBtn.innerHTML = originalText, 2000);
+                setTimeout(() => { pdfBtn.innerHTML = originalText; window.scrollTo({ top: 0, behavior: 'smooth' }); }, 2000);
             };
             
             // ZIP button
@@ -638,7 +652,7 @@ async function compressPDFs() {
                         document.body.removeChild(a);
                     }
                 zipBtn.innerHTML = '<i class="fas fa-check mr-2"></i>Downloaded!';
-                setTimeout(() => zipBtn.innerHTML = originalText, 2000);
+                setTimeout(() => { zipBtn.innerHTML = originalText; window.scrollTo({ top: 0, behavior: 'smooth' }); }, 2000);
             };
             
             downloadButtons.appendChild(pdfBtn);
@@ -664,7 +678,7 @@ async function compressPDFs() {
                         document.body.removeChild(a);
                     }
                 pdfBtn.innerHTML = '<i class="fas fa-check mr-2"></i>Downloaded!';
-                setTimeout(() => pdfBtn.innerHTML = originalText, 2000);
+                setTimeout(() => { pdfBtn.innerHTML = originalText; window.scrollTo({ top: 0, behavior: 'smooth' }); }, 2000);
             };
             downloadButtons.appendChild(pdfBtn);
         }
@@ -672,6 +686,7 @@ async function compressPDFs() {
         // Show success
         progressContainer.classList.add('hidden');
         successMessage.classList.remove('hidden');
+        setTimeout(() => window.scrollTo({top: document.body.scrollHeight, behavior: 'smooth'}), 100);
         
     } catch (error) {
         clearInterval(progressInterval);
@@ -767,7 +782,11 @@ window.powerDownApp = function() {
         document.querySelector('.glass-card').style.boxShadow = "none";
         
         setTimeout(() => {
-            fetch('/api/shutdown', { method: 'POST' }).catch(e => console.log('Shutting down...'));
+            if (typeof Android !== "undefined") {
+                Android.closeApp();
+            } else {
+                fetch('/api/shutdown', { method: 'POST' }).catch(e => console.log('Shutting down...'));
+            }
         }, 2000);
     }, 2500);
 }
