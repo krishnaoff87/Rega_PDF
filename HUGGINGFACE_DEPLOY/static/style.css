@@ -1,3 +1,14 @@
+
+@keyframes systemFadeIn {
+    0% {
+        opacity: 0;
+        filter: brightness(0);
+    }
+    100% {
+        opacity: 1;
+        filter: brightness(1);
+    }
+}
 /* Neon Glass PDF Compressor Styles */
 /* Logo-inspired color palette: Dark brick/slate background with Cyan & Yellow neon */
 
@@ -294,4 +305,117 @@ h1, .neon-text {
 
 html {
     scroll-behavior: smooth !important;
+}
+
+#startupOverlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: #000000;
+    z-index: 99999;
+    transition: opacity 1.5s ease-in-out;
+    pointer-events: none;
+}
+
+@keyframes slideUpFade {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.stagger-entry {
+    animation: slideUpFade 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    opacity: 0;
+}
+
+
+
+
+
+@keyframes flashBang {
+    0% { background-color: #00f3ff; opacity: 1; }
+    10% { background-color: #ffffff; opacity: 1; }
+    100% { background-color: transparent; opacity: 0; pointer-events: none; }
+}
+
+
+
+@keyframes textGlitch {
+    0% { transform: translate(0); text-shadow: -3px 0 #ff003c, 3px 0 #00f3ff; }
+    20% { transform: translate(-3px, 2px); text-shadow: 3px 0 #ff003c, -3px 0 #00f3ff; }
+    40% { transform: translate(-1px, -2px); text-shadow: 3px 0 #ff003c, -3px 0 #00f3ff; }
+    60% { transform: translate(3px, 2px); text-shadow: -3px 0 #ff003c, 3px 0 #00f3ff; }
+    80% { transform: translate(2px, -2px); text-shadow: -3px 0 #ff003c, 3px 0 #00f3ff; }
+    100% { transform: translate(0); text-shadow: 3px 0 #ff003c, -3px 0 #00f3ff; }
+}
+
+
+
+
+
+@keyframes scanReveal {
+    0% { height: 100vh; opacity: 1; }
+    85% { height: 0vh; opacity: 1; }
+    100% { height: 0vh; opacity: 0; }
+}
+
+/* Blue Download Button */
+.neon-blue-btn {
+    background: #3b82f6;
+    color: #ffffff;
+    border: none;
+    box-shadow: 0 0 25px rgba(59, 130, 246, 0.8), inset 0 0 10px rgba(255, 255, 255, 0.3);
+    text-shadow: 0 0 8px rgba(255, 255, 255, 0.6);
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    transition: all 0.3s ease;
+}
+
+.neon-blue-btn:hover:not(:disabled) {
+    background: #60a5fa;
+    box-shadow: 0 0 40px rgba(59, 130, 246, 1), inset 0 0 20px rgba(255, 255, 255, 0.6);
+    animation: glitch-blink 2s infinite;
+}
+
+/* Green Download Button */
+.neon-green-btn {
+    background: #22c55e;
+    color: #ffffff;
+    border: none;
+    box-shadow: 0 0 25px rgba(34, 197, 94, 0.8), inset 0 0 10px rgba(255, 255, 255, 0.3);
+    text-shadow: 0 0 8px rgba(255, 255, 255, 0.6);
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    transition: all 0.3s ease;
+}
+
+.neon-green-btn:hover:not(:disabled) {
+    background: #4ade80;
+    box-shadow: 0 0 40px rgba(34, 197, 94, 1), inset 0 0 20px rgba(255, 255, 255, 0.6);
+    animation: glitch-blink 2s infinite;
+}
+
+/* Purple Download Button */
+.neon-purple-btn {
+    background: #a855f7;
+    color: #ffffff;
+    border: none;
+    box-shadow: 0 0 25px rgba(168, 85, 247, 0.8), inset 0 0 10px rgba(255, 255, 255, 0.3);
+    text-shadow: 0 0 8px rgba(255, 255, 255, 0.6);
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    transition: all 0.3s ease;
+}
+
+.neon-purple-btn:hover:not(:disabled) {
+    background: #c084fc;
+    box-shadow: 0 0 40px rgba(168, 85, 247, 1), inset 0 0 20px rgba(255, 255, 255, 0.6);
+    animation: glitch-blink 2s infinite;
 }

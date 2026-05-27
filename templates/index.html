@@ -9,10 +9,11 @@
     <script src="https://cdn.tailwindcss.com"></script>
     
     <!-- Custom Styles -->
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}?v=1779649337">
     
     <!-- Font Awesome for Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Black+Ops+One&display=swap" rel="stylesheet">
 
     <style>
     .flicker-off {
@@ -83,6 +84,10 @@
 </head>
 
 <body class="startup-mode min-h-screen">
+    <div id="startupOverlay"></div>
+    
+    </div>
+    
     
     <!-- Background Elements -->
     <div class="fixed inset-0 overflow-hidden pointer-events-none">
@@ -101,8 +106,8 @@
         <div class="glass-card w-full max-w-2xl p-8 md:p-12 mt-[12vh] md:mt-0 relative overflow-hidden">
             
             <!-- Header -->
-            <div class="text-center mb-8 relative z-10">
-                <h1 class="font-black mb-2 glitch-cyan uppercase tracking-widest" title="Tera Bhai Kis Se kam hai!!" style="letter-spacing: 0.2em; font-size: 5rem;">
+            <div class="text-center mb-8 relative z-10 stagger-entry" style="animation-delay: 0.8s;">
+                <h1 class="font-black mb-2 glitch-cyan uppercase tracking-widest" title="Tera Bhai Kis Se kam hai!!" style="font-family: 'Black Ops One', 'Stencil', sans-serif; letter-spacing: 0.2em; font-size: 5rem;">
                     REGA
                 </h1>
                 <p class="text-yellow-400 font-bold uppercase tracking-widest text-sm mb-6 electrify-text" style="text-shadow: 0 0 10px rgba(255,234,0,0.5);">PDF GENERAL STORE</p>
@@ -110,7 +115,7 @@
             
             
             <!-- Home Dashboard View -->
-            <div id="homeView" class="w-full relative z-10">
+            <div id="homeView" class="w-full relative z-10 stagger-entry" style="animation-delay: 0.8s;">
                 <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
                     <button class="tool-tile neon-yellow-btn p-6 rounded-xl flex flex-col items-center justify-center transition-transform hover:scale-105" data-tool="compress">
                         <i class="fas fa-compress-alt text-4xl mb-3"></i>
@@ -384,7 +389,7 @@
         </div>
     </div>
     
-    <script src="{{ url_for('static', filename='script.js') }}"></script>
+    <script src="{{ url_for('static', filename='script.js') }}?v=1779649337"></script>
     
 </body>
 </html>

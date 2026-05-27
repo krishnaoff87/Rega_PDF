@@ -64,7 +64,7 @@ def build_exe():
     # PyInstaller arguments
     args = [
         'launcher.py',
-        '--onefile',
+        '--onedir',
         '--windowed',
         '--name=PDFCompressor',
         '--add-data=templates;templates',

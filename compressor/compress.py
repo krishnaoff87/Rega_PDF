@@ -52,6 +52,7 @@ def stage1_ghostscript(input_path, output_path, quality='ebook'):
     gs_path = get_ghostscript_path()
     
     quality_settings = {
+        'extreme': '/screen',
         'screen': '/screen',
         'ebook': '/ebook',
         'printer': '/printer'
@@ -68,11 +69,23 @@ def stage1_ghostscript(input_path, output_path, quality='ebook'):
         '-dQUIET',
         '-dBATCH',
         '-dDetectDuplicateImages=true',
-        '-dCompressFonts=true',
-        '-r150',
+        '-dCompressFonts=true'
+    ]
+
+    if quality == 'extreme':
+        cmd.extend([
+            '-dColorImageDownsampleType=/Bicubic',
+            '-dColorImageResolution=50',
+            '-dGrayImageDownsampleType=/Bicubic',
+            '-dGrayImageResolution=50',
+            '-dMonoImageDownsampleType=/Bicubic',
+            '-dMonoImageResolution=50'
+        ])
+
+    cmd.extend([
         f'-sOutputFile={output_path}',
         input_path
-    ]
+    ])
     
     try:
         # Hide CLI window on Windows

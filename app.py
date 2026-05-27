@@ -88,12 +88,12 @@ def save_to_downloads(filename):
         dest_path = os.path.join(DOWNLOAD_DIR, secure_filename(filename))
         shutil.copy2(source_path, dest_path)
         
-        # Automatically open the destination folder
+        # Automatically open the saved file
         if os.name == 'nt':
-            os.startfile(DOWNLOAD_DIR)
+            os.startfile(dest_path)
         else:
             import subprocess
-            subprocess.run(['open', DOWNLOAD_DIR])
+            subprocess.run(['open', dest_path])
             
         return jsonify({'success': True, 'path': dest_path})
     except Exception as e:
@@ -157,7 +157,7 @@ def compress():
         PROGRESS[task_id] = 0
         
         # Validate quality level
-        if quality not in ['screen', 'ebook', 'printer']:
+        if quality not in ['extreme', 'screen', 'ebook', 'printer']:
             quality = 'ebook'
         
         # Filter valid PDF files
@@ -179,8 +179,9 @@ def compress():
             upload_path = os.path.join(app.config['UPLOAD_FOLDER'], unique_filename)
             file.save(upload_path)
             
-            # Generate output filename
-            output_filename = f"compressed_{original_filename}"
+            # Generate unique output filename
+            import time
+            output_filename = f"compressed_{int(time.time())}_{idx}_{original_filename}"
             output_path = os.path.join(app.config['OUTPUT_FOLDER'], output_filename)
             
             # Create progress callback
@@ -225,7 +226,8 @@ def compress():
                 'success': True,
                 'is_multiple': False,
                 'pdf_url': f"/download/{file_info['filename']}",
-                'filename': file_info['original_name']
+                'filename': file_info['original_name'],
+                'size': os.path.getsize(file_info['path'])
             })
         
         # Multiple files
@@ -247,7 +249,8 @@ def compress():
                 'success': True,
                 'is_multiple': True,
                 'zip_url': f"/download/{zip_filename}",
-                'pdf_urls': pdf_urls
+                'pdf_urls': pdf_urls,
+                'size': os.path.getsize(zip_path)
             })
     
     except Exception as e:
@@ -289,7 +292,7 @@ def convert_pdf_to_img():
         zip_filename = f"images_converted.zip"
         zip_path = create_zip_archive(all_image_paths, app.config['OUTPUT_FOLDER'], zip_filename)
         
-        return jsonify({'success': True, 'zip_url': f"/download/{zip_filename}", 'filename': zip_filename, 'is_multiple': True, 'pdf_urls': []})
+        return jsonify({'success': True, 'zip_url': f"/download/{zip_filename}", 'filename': zip_filename, 'is_multiple': True, 'pdf_urls': [], 'size': os.path.getsize(zip_path)})
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
@@ -311,7 +314,7 @@ def convert_img_to_pdf():
         output_path = os.path.join(app.config['OUTPUT_FOLDER'], output_filename)
         images_to_pdf(image_paths, output_path, password)
         
-        return jsonify({'success': True, 'pdf_url': f"/download/{output_filename}", 'filename': output_filename, 'is_multiple': False})
+        return jsonify({'success': True, 'pdf_url': f"/download/{output_filename}", 'filename': output_filename, 'is_multiple': False, 'size': os.path.getsize(output_path)})
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
@@ -331,7 +334,7 @@ def convert_merge():
         output_path = os.path.join(app.config['OUTPUT_FOLDER'], output_filename)
         merge_pdfs(pdf_paths, output_path)
         
-        return jsonify({'success': True, 'pdf_url': f"/download/{output_filename}", 'filename': output_filename, 'is_multiple': False})
+        return jsonify({'success': True, 'pdf_url': f"/download/{output_filename}", 'filename': output_filename, 'is_multiple': False, 'size': os.path.getsize(output_path)})
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
@@ -348,7 +351,7 @@ def convert_pdf_to_word():
         output_path = os.path.join(app.config['OUTPUT_FOLDER'], output_filename)
         pdf_to_word(upload_path, output_path)
         
-        return jsonify({'success': True, 'pdf_url': f"/download/{output_filename}", 'filename': output_filename, 'is_multiple': False})
+        return jsonify({'success': True, 'pdf_url': f"/download/{output_filename}", 'filename': output_filename, 'is_multiple': False, 'size': os.path.getsize(output_path)})
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
@@ -365,7 +368,7 @@ def convert_pdf_to_excel():
         output_path = os.path.join(app.config['OUTPUT_FOLDER'], output_filename)
         pdf_to_excel(upload_path, output_path)
         
-        return jsonify({'success': True, 'pdf_url': f"/download/{output_filename}", 'filename': output_filename, 'is_multiple': False})
+        return jsonify({'success': True, 'pdf_url': f"/download/{output_filename}", 'filename': output_filename, 'is_multiple': False, 'size': os.path.getsize(output_path)})
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 

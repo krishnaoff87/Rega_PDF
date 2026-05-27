@@ -219,6 +219,19 @@ let selectedFiles = [];
 
 // Initialize
 document.addEventListener('DOMContentLoaded', () => {
+    setTimeout(() => {
+        const overlay = document.getElementById('startupOverlay');
+        if (overlay) overlay.style.opacity = '0';
+        
+        // Remove animation classes after intro so back button has no delay
+        setTimeout(() => {
+            document.querySelectorAll('.stagger-entry').forEach(el => {
+                el.classList.remove('stagger-entry');
+                el.style.animationDelay = '0s';
+            });
+        }, 2000);
+    }, 100);
+
     initToolSwitcher();
     initializeEventListeners();
     initializeQualitySelector();
@@ -358,7 +371,8 @@ function initializeEventListeners() {
             if (targetBytes < totalBytes * 0.3) {
                 qualityWarningModal.classList.remove('hidden');
             } else {
-                selectScreenQuality();
+                // If it's a tight squeeze but not <30%, still use extreme to ensure we hit it
+                selectedQuality = 'extreme';
                 compressPDFs();
             }
         });
@@ -369,7 +383,7 @@ function initializeEventListeners() {
         
         proceedWarningBtn.addEventListener('click', () => {
             qualityWarningModal.classList.add('hidden');
-            selectScreenQuality();
+            selectedQuality = 'extreme';
             compressPDFs();
         });
     }
@@ -452,6 +466,7 @@ function handleFileSelect(files) {
     
     updateFileList();
     updateCompressButton();
+    document.getElementById('fileInput').value = '';
     setTimeout(() => window.scrollTo({top: document.body.scrollHeight, behavior: 'smooth'}), 100);
 }
 // Update File List Display
@@ -469,11 +484,11 @@ function updateFileList() {
         fileItem.className = 'file-item';
         
         const fileInfo = document.createElement('div');
-        fileInfo.className = 'flex items-center space-x-3';
+        fileInfo.className = 'flex items-center space-x-3 min-w-0 flex-1 pr-4';
         fileInfo.innerHTML = `
-            <i class="fas fa-file-pdf text-red-500 text-xl"></i>
-            <div>
-                <div class="font-semibold text-gray-700">${file.name}</div>
+            <i class="fas fa-file-pdf text-red-500 text-xl flex-shrink-0"></i>
+            <div class="min-w-0 flex-1">
+                <div class="font-semibold text-gray-300 truncate" title="${file.name}">${file.name}</div>
                 <div class="text-sm text-gray-500">${formatFileSize(file.size)}</div>
             </div>
         `;
@@ -492,14 +507,17 @@ function updateFileList() {
 // Remove File
 function removeFile(index) {
     selectedFiles.splice(index, 1);
+    document.getElementById('fileInput').value = '';
     updateFileList();
     updateCompressButton();
+    document.getElementById('fileInput').value = '';
     setTimeout(() => window.scrollTo({top: document.body.scrollHeight, behavior: 'smooth'}), 100);
 }
 
 // Update Compress Button State
 
 function updateCompressButton() {
+    compressBtn.classList.remove('hidden');
     const conf = toolConfig[currentTool];
     if (selectedFiles.length > 0) {
         compressBtn.disabled = false;
@@ -546,6 +564,10 @@ async function compressPDFs() {
     progressContainer.classList.remove('hidden');
     compressBtn.disabled = true;
     compressBtn.classList.remove('pulse-glow');
+    compressBtn.classList.add('hidden'); // Hide the button
+    
+    // Auto scroll to bottom
+    setTimeout(() => window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' }), 100);
     
     const progressBar = document.getElementById('progressBar');
     progressBar.style.width = '0%';
@@ -602,10 +624,15 @@ async function compressPDFs() {
         downloadButtons.className = 'flex flex-col space-y-3 w-full mt-2';
         
         if (data.is_multiple) {
-            // PDF button (downloads all individually)
+            // Multi files button (downloads all individually)
             const pdfBtn = document.createElement('button');
-            pdfBtn.className = 'w-full neon-yellow-btn font-bold py-4 rounded-xl';
-            pdfBtn.innerHTML = '<i class="fas fa-file-pdf mr-2"></i>Download PDFs';
+            let mBtnClass = 'neon-yellow-btn';
+            let mBtnText = 'Download PDFs';
+            let mBtnIcon = 'fa-file-pdf';
+            if (currentTool === 'pdf-to-word') { mBtnClass = 'neon-blue-btn'; mBtnText = 'Download DOCs'; mBtnIcon = 'fa-file-word'; }
+            if (currentTool === 'pdf-to-excel') { mBtnClass = 'neon-green-btn'; mBtnText = 'Download XLSs'; mBtnIcon = 'fa-file-excel'; }
+            pdfBtn.className = `w-full ${mBtnClass} font-bold py-4 rounded-xl`;
+            pdfBtn.innerHTML = `<i class="fas ${mBtnIcon} mr-2"></i>${mBtnText}`;
             pdfBtn.onclick = async () => {
                 const originalText = pdfBtn.innerHTML;
                 pdfBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Downloading...';
@@ -634,13 +661,25 @@ async function compressPDFs() {
             
             // ZIP button
             const zipBtn = document.createElement('button');
-            zipBtn.className = 'w-full neon-yellow-btn font-bold py-4 rounded-xl';
-            zipBtn.innerHTML = '<i class="fas fa-file-archive mr-2"></i>Download ZIP';
+            let zipClass = 'neon-yellow-btn';
+            let zipBadge = '#ffea00';
+            if (currentTool === 'pdf-to-word') { zipClass = 'neon-blue-btn'; zipBadge = '#3b82f6'; }
+            if (currentTool === 'pdf-to-excel') { zipClass = 'neon-green-btn'; zipBadge = '#10b981'; }
+            
+            zipBtn.className = `w-full ${zipClass} font-bold py-3 rounded-xl flex flex-col items-center justify-center`;
+            zipBtn.innerHTML = `<div class="flex flex-col items-center justify-center gap-2">
+                <div class="text-lg"><i class="fas fa-file-archive mr-2"></i>Download ZIP</div>
+                ${data.size ? `<div class="text-xs px-3 py-1 bg-[#1a1a1a] border rounded-full font-bold tracking-widest pulse-glow" style="border-color: ${zipBadge}66; color: ${zipBadge}; box-shadow: 0 0 10px ${zipBadge}33 inset;">${formatFileSize(data.size)}</div>` : ''}
+            </div>`;
             zipBtn.onclick = async () => {
                 const originalText = zipBtn.innerHTML;
                 zipBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Downloading...';
                 const filename = data.zip_url.split('/').pop();
-                const absoluteUrl = new URL(`/download/${filename}`, window.location.href).href;
+                const isDesktop = window.location.hostname === '127.0.0.1' || window.location.hostname === 'localhost';
+                if (isDesktop) {
+                    await fetch(`/save_to_downloads/${filename}`);
+                } else {
+                    const absoluteUrl = new URL(`/download/${filename}`, window.location.href).href;
                     if (typeof Android !== "undefined") {
                         Android.downloadFile(absoluteUrl, filename);
                     } else {
@@ -651,6 +690,7 @@ async function compressPDFs() {
                         a.click();
                         document.body.removeChild(a);
                     }
+                }
                 zipBtn.innerHTML = '<i class="fas fa-check mr-2"></i>Downloaded!';
                 setTimeout(() => { zipBtn.innerHTML = originalText; window.scrollTo({ top: 0, behavior: 'smooth' }); }, 2000);
             };
@@ -658,15 +698,45 @@ async function compressPDFs() {
             downloadButtons.appendChild(pdfBtn);
             downloadButtons.appendChild(zipBtn);
         } else {
-            // Single PDF download
+            // Dynamic styling based on tool
+            let btnClass = 'neon-yellow-btn';
+            let btnText = 'Download PDF';
+            let btnIcon = 'fa-file-pdf';
+            let badgeColor = '#ffea00';
+            
+            if (currentTool === 'pdf-to-word') {
+                btnClass = 'neon-blue-btn';
+                btnText = 'Download DOC';
+                btnIcon = 'fa-file-word';
+                badgeColor = '#3b82f6';
+            } else if (currentTool === 'pdf-to-excel') {
+                btnClass = 'neon-green-btn';
+                btnText = 'Download XLSX';
+                btnIcon = 'fa-file-excel';
+                badgeColor = '#10b981';
+            } else if (currentTool === 'merge') {
+                btnClass = 'neon-purple-btn';
+                btnText = 'Download Merged PDF';
+                btnIcon = 'fa-object-group';
+                badgeColor = '#a855f7';
+            }
+
+            // Single file download
             const pdfBtn = document.createElement('button');
-            pdfBtn.className = 'w-full neon-yellow-btn font-bold py-4 rounded-xl';
-            pdfBtn.innerHTML = '<i class="fas fa-file-pdf mr-2"></i>Download PDF';
+            pdfBtn.className = `w-full ${btnClass} font-bold py-3 rounded-xl flex flex-col items-center justify-center`;
+            pdfBtn.innerHTML = `<div class="flex flex-col items-center justify-center gap-2">
+                <div class="text-lg"><i class="fas ${btnIcon} mr-2"></i>${btnText}</div>
+                ${data.size ? `<div class="text-xs px-3 py-1 bg-[#1a1a1a] border rounded-full font-bold tracking-widest pulse-glow" style="border-color: ${badgeColor}66; color: ${badgeColor}; box-shadow: 0 0 10px ${badgeColor}33 inset;">${formatFileSize(data.size)}</div>` : ''}
+            </div>`;
             pdfBtn.onclick = async () => {
                 const originalText = pdfBtn.innerHTML;
                 pdfBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Downloading...';
                 const filename = data.pdf_url.split('/').pop();
-                const absoluteUrl = new URL(`/download/${filename}`, window.location.href).href;
+                const isDesktop = window.location.hostname === '127.0.0.1' || window.location.hostname === 'localhost';
+                if (isDesktop) {
+                    await fetch(`/save_to_downloads/${filename}`);
+                } else {
+                    const absoluteUrl = new URL(`/download/${filename}`, window.location.href).href;
                     if (typeof Android !== "undefined") {
                         Android.downloadFile(absoluteUrl, filename);
                     } else {
@@ -677,6 +747,7 @@ async function compressPDFs() {
                         a.click();
                         document.body.removeChild(a);
                     }
+                }
                 pdfBtn.innerHTML = '<i class="fas fa-check mr-2"></i>Downloaded!';
                 setTimeout(() => { pdfBtn.innerHTML = originalText; window.scrollTo({ top: 0, behavior: 'smooth' }); }, 2000);
             };
@@ -774,12 +845,13 @@ window.powerDownApp = function() {
     // Step 3: Fade entire screen to pure black and tell Python to shutdown
     setTimeout(() => {
         document.getElementById('exitBtnContainer').classList.add('flicker-off');
-        document.body.style.transition = "background 2s ease, filter 2s ease";
-        document.body.style.background = "#000000";
-        document.querySelector('.glass-card').style.transition = "all 2s ease";
-        document.querySelector('.glass-card').style.background = "transparent";
-        document.querySelector('.glass-card').style.border = "none";
-        document.querySelector('.glass-card').style.boxShadow = "none";
+        
+        // Use the overlay to fade to pure black smoothly
+        const overlay = document.getElementById('startupOverlay');
+        if (overlay) {
+            overlay.style.transition = "opacity 2s ease-in-out";
+            overlay.style.opacity = "1";
+        }
         
         setTimeout(() => {
             if (typeof Android !== "undefined") {

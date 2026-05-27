@@ -60,10 +60,6 @@ def pdf_to_excel(pdf_path, output_xlsx_path):
         all_tables = []
         for page in pdf.pages:
             tables = page.extract_tables()
-            if not tables:
-                # Fallback for borderless tables or flattened PDFs
-                tables = page.extract_tables({"vertical_strategy": "text", "horizontal_strategy": "text"})
-                
             for table in tables:
                 if table:
                     # Filter out purely None rows
